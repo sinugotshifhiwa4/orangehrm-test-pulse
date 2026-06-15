@@ -14,11 +14,21 @@ interface FailEntry {
   latestReportUrl: string | null;
 }
 
+interface TopFailingOpts {
+  limit?: number;
+  windowDays?: number;
+}
+
 export const TopFailingModule = {
-  render(runs: Run[], subId = 'top-failing-sub', listId = 'top-failing-list'): void {
+  render(runs: Run[], subId = 'top-failing-sub', listId = 'top-failing-list', opts: TopFailingOpts = {}): void {
     const sub = document.getElementById(subId);
     const list = document.getElementById(listId);
     if (!sub || !list) return;
+    if (opts.windowDays && opts.windowDays > 0) {
+      const cutoff = Date.now() - opts.windowDays * 86400000;
+      runs = runs.filter(r => (r._dateMs || 0) >= cutoff);
+    }
+    const limit = opts.limit ?? 8;
     const hasPerTest = runs.some(r => r.failedTests && r.failedTests.length > 0);
     if (hasPerTest) {
       const counts: Record<string, FailEntry> = {};
@@ -44,8 +54,9 @@ export const TopFailingModule = {
       }));
       const sorted = Object.values(counts)
         .sort((a, b) => (b.latestDateMs - a.latestDateMs) || (b.count - a.count))
-        .slice(0, 8);
-      sub.textContent = `${sorted.length} distinct · ${runs.filter(r => r.failed > 0).length} failing runs`;
+        .slice(0, limit);
+      const windowLabel = opts.windowDays ? ` · last ${opts.windowDays}d` : '';
+      sub.textContent = `Top ${sorted.length} · ${runs.filter(r => r.failed > 0).length} failing runs${windowLabel}`;
       list.innerHTML = sorted.length === 0
         ? `<div class="failing-empty">✓ No test failures in this window</div>`
         : sorted.map((t, i) => `<div class="failing-item">
@@ -62,7 +73,7 @@ export const TopFailingModule = {
           <div class="failing-badge">${t.count}×</div>
         </div>`).join('');
     } else {
-      const worst = [...runs].filter(r => r.failed > 0).sort((a, b) => b.failed - a.failed).slice(0, 6);
+      const worst = [...runs].filter(r => r.failed > 0).sort((a, b) => b.failed - a.failed).slice(0, Math.min(limit, 6));
       sub.textContent = 'run-level data';
       list.innerHTML = worst.length === 0
         ? `<div class="failing-empty">✓ No failures in this window</div>`

@@ -8,6 +8,7 @@
       </div>
       <div class="visual-tabs" id="visual-tabs">
         <button class="visual-tab active" data-visual-section="quality">Quality</button>
+        <button class="visual-tab" data-visual-section="branches">Branches</button>
         <button class="visual-tab" data-visual-section="tags">Tags</button>
         <button class="visual-tab" data-visual-section="environment">Environment</button>
         <button class="visual-tab" data-visual-section="users">Users</button>
@@ -16,6 +17,10 @@
     </div>
 
     <div class="visual-section active" data-visual-section="quality">
+      <div class="viz-group">
+        <span class="viz-group-title">Health Snapshot</span>
+        <span class="viz-group-sub">Where this release stands right now</span>
+      </div>
       <div class="outcome-duo">
         <div class="chart-card chart-card-centered">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Outcome Composition</div></div>
@@ -25,6 +30,11 @@
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Success Rate</div></div>
           <canvas id="chart-gauge"></canvas>
         </div>
+      </div>
+
+      <div class="viz-group">
+        <span class="viz-group-title">Trends Over Time</span>
+        <span class="viz-group-sub">How quality is moving build over build</span>
       </div>
       <div class="charts-row">
         <div class="chart-card">
@@ -40,18 +50,30 @@
           <canvas id="chart-flaky"></canvas>
         </div>
       </div>
-      <div class="breakdown-row">
+    </div>
+
+    <div class="visual-section" data-visual-section="branches">
+      <div class="viz-group">
+        <span class="viz-group-title">Branches</span>
+        <span class="viz-group-sub">Merge readiness across branches</span>
+      </div>
+      <div class="breakdown-row breakdown-row-split">
         <div class="breakdown-card">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Branch Readiness</div></div>
           <div id="breakdown-branch"></div>
         </div>
-      </div>
-      <div class="breakdown-charts">
-        <div class="chart-card-full"><div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Avg Pass Rate by Branch</div></div><canvas id="chart-bar-branch" style="max-height:280px"></canvas></div>
+        <div class="chart-card-full">
+          <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Avg Pass Rate by Branch</div></div>
+          <canvas id="chart-bar-branch"></canvas>
+        </div>
       </div>
     </div>
 
     <div class="visual-section" data-visual-section="tags">
+      <div class="viz-group">
+        <span class="viz-group-title">Tags</span>
+        <span class="viz-group-sub">Reliability across test suites</span>
+      </div>
       <div class="breakdown-row breakdown-row-split">
         <div class="breakdown-card">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Suite Health by Tag</div></div>
@@ -59,12 +81,16 @@
         </div>
         <div class="chart-card-full">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Avg Pass Rate by Test Tag</div></div>
-          <canvas id="chart-bar-type" style="max-height:280px"></canvas>
+          <canvas id="chart-bar-type"></canvas>
         </div>
       </div>
     </div>
 
     <div class="visual-section" data-visual-section="environment">
+      <div class="viz-group">
+        <span class="viz-group-title">Environment</span>
+        <span class="viz-group-sub">Stability across environments</span>
+      </div>
       <div class="breakdown-row breakdown-row-split">
         <div class="breakdown-card">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Environment Stability</div></div>
@@ -72,12 +98,16 @@
         </div>
         <div class="chart-card-full">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Runs by Environment</div></div>
-          <canvas id="chart-bar-env" style="max-height:280px"></canvas>
+          <canvas id="chart-bar-env"></canvas>
         </div>
       </div>
     </div>
 
     <div class="visual-section" data-visual-section="users">
+      <div class="viz-group">
+        <span class="viz-group-title">Users</span>
+        <span class="viz-group-sub">Pass rates across user roles</span>
+      </div>
       <div class="breakdown-row breakdown-row-split">
         <div class="breakdown-card">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>User Journey Stability</div></div>
@@ -85,12 +115,16 @@
         </div>
         <div class="chart-card-full">
           <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Avg Pass Rate by User Role</div></div>
-          <canvas id="chart-bar-user" style="max-height:280px"></canvas>
+          <canvas id="chart-bar-user"></canvas>
         </div>
       </div>
     </div>
 
     <div class="visual-section" data-visual-section="failures">
+      <div class="viz-group">
+        <span class="viz-group-title">Failure Analysis</span>
+        <span class="viz-group-sub">What's breaking and why</span>
+      </div>
       <div class="overview-duo">
         <div class="failing-card">
           <div class="failing-card-hd">

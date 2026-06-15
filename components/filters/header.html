@@ -1,11 +1,11 @@
 <!-- Header -->
 <header class="header">
-  <!-- Hamburger (mobile only) -->
-  <button class="hamburger" id="hamburger" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="header-title" id="header-title">Overview</div>
 
-  <div class="header-title">Test <span>Analytics</span></div>
+  <!-- Active filter chips -->
+  <div class="filter-chips" id="filter-chips"></div>
+
+  <span class="last-updated" id="last-updated">—</span>
 
   <!-- ── Filter bar ── -->
   <div class="filters" id="header-filters">
@@ -75,9 +75,6 @@
       </div>
     </div>
 
-    <!-- Search -->
-    <input type="text" class="header-search" id="header-search" placeholder="Search test, suite, or file…" />
-
     <!-- Pass threshold -->
     <div class="threshold-chip">
       Pass Rate Filter ≥ <input type="range" id="pass-threshold" min="80" max="100" step="1" value="100"/>
@@ -86,7 +83,24 @@
   </div>
 
   <div class="header-right">
-    <span class="last-updated" id="last-updated">—</span>
+    <!-- Export dropdown (kept here so it stays visible on mobile too) -->
+    <div class="dropdown-wrap export-wrap" id="export-dd">
+      <button class="btn export-trigger" id="export-trigger" type="button" title="Export">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M5 7l3 3 3-3M2.5 13h11"/></svg>
+        <span class="export-label">Export</span>
+        <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-panel export-panel" id="export-panel">
+        <button class="dd-option export-option" data-format="csv" type="button">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5"/><path d="M5 6h6M5 9h6M5 12h4"/></svg>
+          CSV
+        </button>
+        <button class="dd-option export-option" data-format="excel" type="button">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5"/><path d="M6 5l4 6M10 5l-4 6"/></svg>
+          Excel
+        </button>
+      </div>
+    </div>
     <!-- Filter icon (mobile) -->
     <button class="btn btn-icon mobile-filter-btn" title="Filters" aria-label="Filters">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
@@ -98,7 +112,6 @@
         <circle cx="6" cy="15" r="2.2" fill="currentColor" stroke="none"></circle>
       </svg>
     </button>
-    <button class="btn">↓ CSV</button>
     <button class="btn btn-primary btn-icon" title="Refresh">↺</button>
   </div>
 </header>

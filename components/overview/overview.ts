@@ -17,13 +17,17 @@ const totals = (runs: Run[]): Totals => {
   return { passed, failed, flaky, skipped, total: passed + failed + flaky + skipped };
 };
 
-/** Renders a trend chip; `goodUp` flips which direction is healthy. */
-const trendChip = (delta: number | null, goodUp: boolean, suffix = ''): string => {
-  if (delta == null || delta === 0) return `<span class="kpi-trend flat">— no change</span>`;
+const TREND_TITLE = 'Change vs the earlier half of these runs';
+
+/** Renders a trend chip. Colour follows direction for consistency across every card:
+    up is always green, down is always red. The arrow carries direction, so the
+    magnitude is shown unsigned to avoid a redundant "↓ −3". */
+const trendChip = (delta: number | null, suffix = ''): string => {
+  if (delta == null) return `<span class="kpi-trend flat" title="Not enough history to compare">— no baseline</span>`;
+  if (delta === 0) return `<span class="kpi-trend flat" title="${TREND_TITLE}">→ no change</span>`;
   const up = delta > 0;
-  const good = up === goodUp;
   const arrow = up ? '↑' : '↓';
-  return `<span class="kpi-trend ${good ? 'good' : 'bad'}">${arrow} ${up ? '+' : '−'}${Math.abs(delta)}${suffix}</span>`;
+  return `<span class="kpi-trend ${up ? 'up' : 'down'}" title="${TREND_TITLE}">${arrow} ${Math.abs(delta)}${suffix}</span>`;
 };
 
 export const OverviewModule = {
@@ -51,11 +55,11 @@ export const OverviewModule = {
 
     const cards = [
       { label: 'Total Tests', value: String(t.total), color: 'var(--blue)', trend: '' },
-      { label: 'Passed', value: String(t.passed), color: 'var(--green)', trend: trendChip(countDelta('passed'), true) },
-      { label: 'Failed', value: String(t.failed), color: t.failed ? 'var(--red)' : 'var(--green)', trend: trendChip(countDelta('failed'), false) },
-      { label: 'Flaky', value: String(t.flaky), color: t.flaky ? 'var(--orange)' : 'var(--green)', trend: trendChip(countDelta('flaky'), false) },
-      { label: 'Skipped', value: String(t.skipped), color: 'var(--text-2)', trend: trendChip(countDelta('skipped'), false) },
-      { label: 'Success', value: `${Math.round(success)}%`, color: success >= 90 ? 'var(--green)' : success >= 70 ? 'var(--yellow)' : 'var(--red)', trend: trendChip(successDelta, true, '%') },
+      { label: 'Passed', value: String(t.passed), color: 'var(--green)', trend: trendChip(countDelta('passed')) },
+      { label: 'Failed', value: String(t.failed), color: t.failed ? 'var(--red)' : 'var(--green)', trend: trendChip(countDelta('failed')) },
+      { label: 'Flaky', value: String(t.flaky), color: t.flaky ? 'var(--orange)' : 'var(--green)', trend: trendChip(countDelta('flaky')) },
+      { label: 'Skipped', value: String(t.skipped), color: 'var(--text-2)', trend: trendChip(countDelta('skipped')) },
+      { label: 'Success', value: `${Math.round(success)}%`, color: success >= 90 ? 'var(--green)' : success >= 70 ? 'var(--yellow)' : 'var(--red)', trend: trendChip(successDelta, '%') },
     ];
     el.innerHTML = cards.map(c => `
       <div class="kpi-card">

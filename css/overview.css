@@ -33,8 +33,9 @@
 .kpi-trend {
   display: inline-block; font-size: 10px; font-family: var(--mono); font-weight: 600;
 }
-.kpi-trend.good { color: var(--green); }
-.kpi-trend.bad  { color: var(--red); }
+/* Direction-based colours: up is always green, down is a calm amber (not alarm-red). */
+.kpi-trend.up   { color: var(--green); }
+.kpi-trend.down { color: var(--orange); }
 .kpi-trend.flat { color: var(--text-3); }
 
 /* ── Overview rows ── */
@@ -50,6 +51,8 @@
   align-items: center;
 }
 .outcome-chart canvas { max-height: 200px; }
+/* Collapsed sidebar frees width — let the charts grow taller so they scale, not stretch. */
+body.sidebar-collapsed .outcome-chart canvas { max-height: 240px; }
 .outcome-stats { display: flex; flex-direction: column; gap: 8px; }
 .outcome-stat {
   display: flex; align-items: center; gap: 8px;

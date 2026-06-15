@@ -47,10 +47,11 @@ export const ChartModule = {
     State.charts[id] = new Chart(canvas, cfg);
   },
 
-  labels(sorted: Run[]): string[] {
+  labels(sorted: Run[], compact = false): string[] {
     return sorted.map((r, i) => {
-      if (!r.date) return `#${r.runNumber ?? i + 1}`;
-      return `#${r.runNumber ?? i + 1} ${Utils.formatDateShort(r.date)}`;
+      const num = `#${r.runNumber ?? i + 1}`;
+      if (compact || !r.date) return num;
+      return `${num} ${Utils.formatDateShort(r.date)}`;
     });
   },
 
@@ -61,12 +62,12 @@ export const ChartModule = {
     };
   },
 
-  passRate(runs: Run[], id = 'chart-passrate'): void {
-    const s = [...runs].sort((a, b) => a._dateMs - b._dateMs).slice(-40);
+  passRate(runs: Run[], id = 'chart-passrate', opts: { limit?: number; compactLabels?: boolean } = {}): void {
+    const s = [...runs].sort((a, b) => a._dateMs - b._dateMs).slice(-(opts.limit ?? 40));
     this.create(id, {
       type: 'line',
       data: {
-        labels: this.labels(s),
+        labels: this.labels(s, opts.compactLabels),
         datasets: [
           {
             label: 'Pass Rate %',
@@ -96,17 +97,15 @@ export const ChartModule = {
     const s = [...runs].sort((a, b) => a._dateMs - b._dateMs).slice(-40);
     const isTrendsView = id === 'chart-failures-full';
     if (isTrendsView) {
-      const totals = s.map(r => Math.max(1, (r.passed || 0) + (r.failed || 0) + (r.flaky || 0) + (r.skipped || 0)));
-      const asPct = (value: number, idx: number) => +((value / totals[idx]) * 100).toFixed(1);
       this.create(id, {
         type: 'bar',
         data: {
-          labels: this.labels(s),
+          labels: this.labels(s, true),
           datasets: [
-            { label: 'Passed', data: s.map((r, i) => asPct(r.passed || 0, i)), backgroundColor: CHART_COLORS.passFill, borderColor: CHART_COLORS.pass, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
-            { label: 'Failed', data: s.map((r, i) => asPct(r.failed || 0, i)), backgroundColor: CHART_COLORS.failFill, borderColor: CHART_COLORS.fail, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
-            { label: 'Flaky', data: s.map((r, i) => asPct(r.flaky || 0, i)), backgroundColor: CHART_COLORS.flakyFill, borderColor: CHART_COLORS.flaky, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
-            { label: 'Skipped', data: s.map((r, i) => asPct(r.skipped || 0, i)), backgroundColor: CHART_COLORS.skippedFill, borderColor: CHART_COLORS.skipped, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
+            { label: 'Passed', data: s.map(r => r.passed || 0), backgroundColor: CHART_COLORS.passFill, borderColor: CHART_COLORS.pass, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
+            { label: 'Failed', data: s.map(r => r.failed || 0), backgroundColor: CHART_COLORS.failFill, borderColor: CHART_COLORS.fail, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
+            { label: 'Flaky', data: s.map(r => r.flaky || 0), backgroundColor: CHART_COLORS.flakyFill, borderColor: CHART_COLORS.flaky, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
+            { label: 'Skipped', data: s.map(r => r.skipped || 0), backgroundColor: CHART_COLORS.skippedFill, borderColor: CHART_COLORS.skipped, borderWidth: 1, borderRadius: 3, borderSkipped: false, stack: 'outcomes' },
           ],
         },
         options: {
@@ -126,8 +125,15 @@ export const ChartModule = {
                     Flaky: run.flaky || 0,
                     Skipped: run.skipped || 0,
                   };
+                  const total = (run.passed || 0) + (run.failed || 0) + (run.flaky || 0) + (run.skipped || 0);
                   const count = countMap[ctx.dataset.label ?? ''] ?? 0;
-                  return `${ctx.dataset.label}: ${ctx.formattedValue}% (${count})`;
+                  const pct = total > 0 ? ` (${Math.round((count / total) * 100)}%)` : '';
+                  return `${ctx.dataset.label}: ${count}${pct}`;
+                },
+                footer: (items: TooltipItemLike[]) => {
+                  const run = s[items[0].dataIndex];
+                  const total = (run.passed || 0) + (run.failed || 0) + (run.flaky || 0) + (run.skipped || 0);
+                  return `Total: ${total} tests`;
                 },
               },
             },
@@ -135,7 +141,7 @@ export const ChartModule = {
           scales: {
             ...CHART_DEFAULTS.scales,
             x: { ...CHART_DEFAULTS.scales.x, stacked: true },
-            y: { ...CHART_DEFAULTS.scales.y, stacked: true, min: 0, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: (v: number | string) => `${v}%` } },
+            y: { ...CHART_DEFAULTS.scales.y, stacked: true, beginAtZero: true, ticks: { ...CHART_DEFAULTS.scales.y.ticks, precision: 0 } },
           },
         },
       } as ChartConfiguration);
@@ -144,7 +150,7 @@ export const ChartModule = {
     this.create(id, {
       type: 'bar',
       data: {
-        labels: this.labels(s),
+        labels: this.labels(s, true),
         datasets: [{
           label: 'Failures',
           data: s.map(r => r.failed),
@@ -168,7 +174,7 @@ export const ChartModule = {
       this.create(id, {
         type: 'line',
         data: {
-          labels: this.labels(s),
+          labels: this.labels(s, true),
           datasets: [
             { label: 'Failed', data: s.map(r => r.failed || 0), borderColor: CHART_COLORS.fail, backgroundColor: CHART_COLORS.failFill, fill: true, tension: .4, pointRadius: 0, pointHoverRadius: 5, borderWidth: 2, yAxisID: 'y' },
             { label: 'Flaky', data: s.map(r => r.flaky || 0), borderColor: CHART_COLORS.flaky, backgroundColor: CHART_COLORS.flakyFill, fill: false, tension: .4, pointRadius: 0, pointHoverRadius: 5, borderWidth: 2, yAxisID: 'y' },
@@ -188,7 +194,7 @@ export const ChartModule = {
     this.create(id, {
       type: 'bar',
       data: {
-        labels: this.labels(s),
+        labels: this.labels(s, true),
         datasets: [{
           label: 'Flaky', data: s.map(r => r.flaky || 0),
           backgroundColor: CHART_COLORS.flakyFill, borderColor: CHART_COLORS.flaky, borderWidth: 1, borderRadius: 3,
@@ -209,7 +215,7 @@ export const ChartModule = {
     this.create(id, {
       type: 'line',
       data: {
-        labels: this.labels(s),
+        labels: this.labels(s, true),
         datasets: [
           {
             label: 'Duration (min)', data: s.map(r => +(r.durationMin as number).toFixed(2)),
@@ -260,7 +266,7 @@ export const ChartModule = {
     this.create(id, {
       type: 'line',
       data: {
-        labels: this.labels(s),
+        labels: this.labels(s, true),
         datasets: [
           {
             label: 'Passed',
@@ -431,11 +437,11 @@ export const ChartModule = {
     this.outcomeDoughnut(runs, 'chart-outcome');
     this.outcomeDoughnut(runs, 'chart-outcome-ov');
     this.successGauge(runs, 'chart-gauge');
-    this.passRate(runs, 'chart-passrate-ov');
-    this.passRate(runs, 'chart-passrate');
+    this.passRate(runs, 'chart-passrate-ov', { limit: 7, compactLabels: true });
+    this.passRate(runs, 'chart-passrate', { compactLabels: true });
     this.failures(runs, 'chart-failures');
     this.flaky(runs, 'chart-flaky');
-    this.passRate(runs, 'chart-passrate-full');
+    this.passRate(runs, 'chart-passrate-full', { compactLabels: true });
     this.failures(runs, 'chart-failures-full');
     this.flaky(runs, 'chart-flaky-full');
     this.duration(runs, 'chart-duration');

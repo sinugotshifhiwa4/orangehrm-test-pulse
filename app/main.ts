@@ -31,11 +31,13 @@ function mountLayout(): void {
         ${filterSheet}
         ${mobileNav}
         ${states}
-        ${overview}
-        ${trends}
-        ${visuals}
-        ${history}
-        ${reports}
+        <div class="content" id="content">
+          ${overview}
+          ${trends}
+          ${visuals}
+          ${history}
+          ${reports}
+        </div>
       </div>
     </div>
     ${compareModal}

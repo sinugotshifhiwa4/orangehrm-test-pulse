@@ -27,7 +27,8 @@
   --purple:     #a78bfa;
   --accent:     #4f8ef7;
   --sidebar-w:  200px;
-  --header-h:   52px;
+  --sidebar-collapsed-w: 60px;
+  --header-h:   64px;
   --r:          7px;
   --r-sm:       5px;
   --font:       'DM Sans', system-ui, sans-serif;

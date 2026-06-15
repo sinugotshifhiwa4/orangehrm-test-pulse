@@ -5,11 +5,38 @@
    ══════════════════════════════════════════ */
 
 /* ── Filter bar ── */
+/* ── Active filter chips ── */
+.filter-chips {
+  display: flex; align-items: center; gap: 6px;
+  flex: 1; min-width: 0; margin: 0 10px;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  flex-shrink: 0;
+  background: var(--blue-bg); color: var(--blue);
+  border: 1px solid #4f8ef733; border-radius: 999px;
+  padding: 4px 8px 4px 10px;
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  cursor: pointer; transition: .12s; white-space: nowrap;
+}
+.filter-chip:hover { border-color: var(--blue); }
+.filter-chip-x { width: 11px; height: 11px; opacity: .6; flex-shrink: 0; }
+.filter-chip:hover .filter-chip-x { opacity: 1; }
+.filter-chip-clear {
+  background: transparent; color: var(--text-3);
+  border-color: var(--border); padding: 4px 10px;
+}
+.filter-chip-clear:hover { color: var(--text-1); border-color: var(--border-md); }
+
 .filters {
   display: flex;
   gap: 8px;
-  flex: 1;
+  flex: 0 0 auto;
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: nowrap;
   overflow: visible;
   min-width: 0;
@@ -142,6 +169,22 @@
   flex-shrink: 0;
 }
 
+/* ── Export dropdown ── */
+.export-trigger {
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.export-trigger svg:first-child { width: 13px; height: 13px; }
+.export-trigger .dd-caret { width: 9px; height: 6px; opacity: .7; }
+.export-wrap.open .dd-caret { transform: rotate(180deg); }
+/* Anchor the panel to the right edge so it doesn't spill off-screen. */
+.export-panel { left: auto; right: 0; min-width: 150px; }
+.export-option {
+  width: 100%; background: none; border: none;
+  text-align: left; color: var(--text-2);
+}
+.export-option svg { width: 14px; height: 14px; flex-shrink: 0; }
+.export-option:hover { background: var(--bg-3); color: var(--text-1); }
+
 /* Tag chips in label when multi-select active */
 .dd-tag-chips {
   display: flex;
@@ -157,24 +200,6 @@
   font-family: var(--mono);
   font-weight: 600;
 }
-
-/* ── Header search ── */
-.header-search {
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  color: var(--text-1);
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 7px 11px;
-  border-radius: var(--r-sm);
-  width: 100%;
-  transition: .12s;
-  flex: 1 1 260px;
-  min-width: 180px;
-  max-width: 420px;
-}
-.header-search::placeholder { color: var(--text-3); }
-.header-search:focus { outline: none; border-color: var(--border-md); }
 
 /* ── Threshold chip ── */
 .threshold-chip {

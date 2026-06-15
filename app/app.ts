@@ -2,6 +2,7 @@
    App controller — wiring, refresh, render loop
    ══════════════════════════════════════════ */
 import { State } from './state';
+import { Utils } from './core/utils';
 import { DataModule } from './core/data';
 import { FilterModule } from './core/filters';
 import { DropdownModule } from '../components/filters/dropdown';
@@ -31,15 +32,13 @@ export const App = {
   },
 
   syncSearchInputs(): void {
-    const header = document.getElementById('header-search') as HTMLInputElement | null;
     const table = document.getElementById('table-search') as HTMLInputElement | null;
-    if (header && header.value !== State.tableSearch) header.value = State.tableSearch;
     if (table && table.value !== State.tableSearch) table.value = State.tableSearch;
   },
 
   bindStaticActions(): void {
-    this.bindClick(document.getElementById('sidebar-overlay'), () => MobileModule.closeSidebar());
-    this.bindClick(document.getElementById('hamburger'), () => MobileModule.openSidebar());
+    this.restoreSidebarCollapsed();
+    this.bindClick(document.getElementById('sidebar-collapse'), () => this.toggleSidebarCollapsed());
     this.bindClick(document.getElementById('filter-sheet-overlay'), () => MobileModule.closeFilterSheet());
     this.bindClick(document.querySelector('#filter-sheet .modal-close'), () => MobileModule.closeFilterSheet());
     this.bindClick(document.querySelector('#compare-modal .modal-close'), () => CompareModule.close());
@@ -60,10 +59,19 @@ export const App = {
     this.bindClick(document.getElementById('report-overall-btn'), () => ReportModule.downloadOverall());
     this.bindClick(document.getElementById('report-last-run-btn'), () => ReportModule.downloadLastRun());
 
-    document.querySelectorAll('button.btn').forEach(btn => {
-      if (btn.textContent?.includes('CSV')) {
-        this.bindClick(btn, () => this.exportCSV());
-      }
+    document.querySelectorAll<HTMLElement>('.export-trigger').forEach(trigger => {
+      this.bindClick(trigger, e => {
+        e.stopPropagation();
+        const wrap = trigger.closest('.dropdown-wrap');
+        if (wrap?.id) DropdownModule.toggle(wrap.id);
+      });
+    });
+    document.querySelectorAll<HTMLElement>('.export-option').forEach(opt => {
+      this.bindClick(opt, () => {
+        if (opt.dataset.format === 'excel') ExportModule.excel(State.filteredRuns).catch(console.error);
+        else ExportModule.csv(State.filteredRuns);
+        DropdownModule.closeAll({ target: document.body });
+      });
     });
 
     const sheetButtons = document.querySelectorAll('.filter-sheet-footer .btn');
@@ -85,11 +93,57 @@ export const App = {
       this.bindClick(tab, () => VisualsModule.show(tab.dataset.visualSection || ''));
     });
 
+    this.bindClick(document.getElementById('top-failing-viewall-ov'), () => {
+      NavModule.show('breakdown');
+      document.querySelectorAll<HTMLElement>('.mbn-item').forEach(b => b.classList.toggle('active', b.dataset.page === 'breakdown'));
+      VisualsModule.show('failures');
+    });
+
     ExportImageModule.enhance();
+  },
+
+  SIDEBAR_COLLAPSED_KEY: 'qa-sidebar-collapsed',
+
+  setCollapseLabel(collapsed: boolean): void {
+    const btn = document.getElementById('sidebar-collapse');
+    if (!btn) return;
+    const label = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-label', label);
+  },
+
+  restoreSidebarCollapsed(): void {
+    const collapsed = localStorage.getItem(this.SIDEBAR_COLLAPSED_KEY) === '1';
+    if (collapsed) document.getElementById('sidebar')?.classList.add('collapsed');
+    this.setCollapseLabel(collapsed);
+    this.applyContentScale();
+    window.addEventListener('resize', () => this.applyContentScale());
+  },
+
+  toggleSidebarCollapsed(): void {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    const collapsed = sidebar.classList.toggle('collapsed');
+    localStorage.setItem(this.SIDEBAR_COLLAPSED_KEY, collapsed ? '1' : '0');
+    this.setCollapseLabel(collapsed);
+    this.applyContentScale();
+  },
+
+  _scaleTimer: 0,
+
+  /** Collapsing changes the content width. A `body.sidebar-collapsed` flag lets the CSS
+      scale things up, and we rebuild the charts once the width transition settles so they
+      refit the new size instead of keeping their old (stretched) shape. */
+  applyContentScale(): void {
+    const collapsed = !!document.getElementById('sidebar')?.classList.contains('collapsed');
+    document.body.classList.toggle('sidebar-collapsed', collapsed && window.innerWidth > 680);
+    clearTimeout(this._scaleTimer);
+    this._scaleTimer = window.setTimeout(() => ChartModule.renderAll(State.filteredRuns), 260);
   },
 
   async init(): Promise<void> {
     this.bindStaticActions();
+    NavModule.updateHeader();
 
     // Mobile bottom nav
     document.querySelectorAll<HTMLElement>('.mbn-item').forEach(btn => {
@@ -129,14 +183,7 @@ export const App = {
       App.updateUI();
     });
 
-    // Header search (mirrors to table search)
-    document.getElementById('header-search')?.addEventListener('input', e => {
-      State.tableSearch = (e.target as HTMLInputElement).value;
-      this.syncSearchInputs();
-      this.updateUI();
-    });
-
-    // Table search
+    // Table search (Run History)
     document.getElementById('table-search')?.addEventListener('input', e => {
       State.tableSearch = (e.target as HTMLInputElement).value;
       this.syncSearchInputs();
@@ -194,6 +241,7 @@ export const App = {
     FilterModule.apply();
     this.syncSearchInputs();
     this.updateAdvancedFilterTrigger();
+    this.renderFilterChips();
     const runs = State.filteredRuns;
     ExecutiveModule.render(runs);
     OverviewModule.render(runs);
@@ -201,7 +249,7 @@ export const App = {
     ChartModule.renderAll(runs);
     BreakdownModule.renderAll(runs);
     TopFailingModule.render(runs);
-    TopFailingModule.render(runs, 'top-failing-sub-ov', 'top-failing-list-ov');
+    TopFailingModule.render(runs, 'top-failing-sub-ov', 'top-failing-list-ov', { limit: 5, windowDays: 30 });
     RiskModule.renderModules(runs);
     RiskModule.renderCategoryList(runs);
     VisualsModule.show(State.visualSection);
@@ -226,7 +274,82 @@ export const App = {
     trigger.classList.toggle('has-active-filters', count > 0);
   },
 
-  exportCSV(): void { ExportModule.download(State.filteredRuns); },
+  /** Render a removable chip in the header for each active filter. */
+  renderFilterChips(): void {
+    const box = document.getElementById('filter-chips');
+    if (!box) return;
+    const f = State.filters;
+    const chips: { kind: string; value?: string; label: string }[] = [];
+    if (State.dateRangeDays > 0) chips.push({ kind: 'date', label: `Last ${State.dateRangeDays} days` });
+    if (f.status) chips.push({ kind: 'status', label: f.status === 'PASS' ? 'Passed' : 'Failed' });
+    if (f.branch) chips.push({ kind: 'branch', label: f.branch });
+    if (f.env) chips.push({ kind: 'env', label: f.env });
+    f.testTags.forEach(t => chips.push({ kind: 'tag', value: t, label: `@${t}` }));
+    if (f.userRole) chips.push({ kind: 'user', label: f.userRole });
+    if (State.passThreshold !== 100) chips.push({ kind: 'threshold', label: `Pass ≥ ${State.passThreshold}%` });
+
+    if (chips.length === 0) { box.innerHTML = ''; return; }
+
+    const x = `<svg viewBox="0 0 12 12" class="filter-chip-x"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+    box.innerHTML = chips.map(c =>
+      `<button class="filter-chip" data-kind="${c.kind}"${c.value != null ? ` data-value="${Utils.escape(c.value)}"` : ''} title="Remove filter">
+        <span>${Utils.escape(c.label)}</span>${x}
+      </button>`).join('')
+      + (chips.length > 1 ? `<button class="filter-chip filter-chip-clear" data-kind="all" title="Clear all filters">Clear all</button>` : '');
+
+    box.querySelectorAll<HTMLElement>('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => this.clearFilter(chip.dataset.kind || '', chip.dataset.value));
+    });
+  },
+
+  _resetSheetRadio(name: string): void {
+    document.querySelectorAll<HTMLInputElement>(`input[name="${name}"][value=""]`).forEach(r => (r.checked = true));
+  },
+
+  /** Clear a single active filter (or all) and re-render. */
+  clearFilter(kind: string, value?: string): void {
+    const f = State.filters;
+    switch (kind) {
+      case 'all': MobileModule.clearFilters(); return;
+      case 'date':
+        State.dateRangeDays = 0;
+        document.querySelectorAll<HTMLElement>('.date-pill').forEach(p => p.classList.toggle('active', p.dataset.days === '0'));
+        break;
+      case 'status':
+        f.status = '';
+        document.querySelectorAll<HTMLInputElement>('input[name="filter-status-m"][value=""], input[name="filter-status"][value=""]').forEach(r => (r.checked = true));
+        DropdownModule.updateSingleLabel('dd-status-label', 'Filter Status', '');
+        break;
+      case 'branch':
+        f.branch = '';
+        this._resetSheetRadio('filter-status-branch');
+        DropdownModule.updateSingleLabel('dd-branch-label', 'All Branches', '');
+        break;
+      case 'env':
+        f.env = '';
+        this._resetSheetRadio('filter-status-env');
+        DropdownModule.updateSingleLabel('dd-env-label', 'All Envs', '');
+        break;
+      case 'user':
+        f.userRole = '';
+        this._resetSheetRadio('filter-status-user');
+        DropdownModule.updateSingleLabel('dd-user-label', 'All Users', '');
+        break;
+      case 'tag':
+        f.testTags = f.testTags.filter(t => t !== value);
+        document.querySelectorAll<HTMLInputElement>('input[name="filter-tag-m"]').forEach(c => { if (c.value === value) c.checked = false; });
+        DropdownModule.updateTagsLabel();
+        break;
+      case 'threshold':
+        State.passThreshold = 100;
+        ['pass-threshold', 'pass-threshold-m'].forEach(id => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = '100'; });
+        ['threshold-val', 'threshold-val-m'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '100%'; });
+        break;
+      default: return;
+    }
+    this.updateUI();
+  },
+
 
   showLoading(visible: boolean): void {
     const loading = document.getElementById('loading-state');

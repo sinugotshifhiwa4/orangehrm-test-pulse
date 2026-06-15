@@ -3,6 +3,26 @@
    stat-bar breakdowns, failing lists
    ══════════════════════════════════════════ */
 
+/* ── Shared sizing tokens — keep every chart the same height ── */
+.visuals-shell {
+  --chart-h: 240px;   /* all wide & radial charts share one height */
+}
+/* Collapsed sidebar frees width — grow the charts so they scale up rather than stretch. */
+body.sidebar-collapsed .visuals-shell { --chart-h: 280px; }
+
+/* ── Group header (titled sub-section inside a tab) ── */
+.viz-group {
+  display: flex; align-items: baseline; gap: 10px;
+  padding: 4px 2px 7px; margin-top: 2px;
+  border-bottom: 1px solid var(--border);
+}
+.viz-group-title {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-1);
+}
+.viz-group-sub { font-size: 11px; color: var(--text-2); }
+
 /* ── Charts grid ── */
 .charts-row {
   display: grid;
@@ -16,7 +36,7 @@
   padding: 14px 14px 10px;
   overflow: hidden;
 }
-.chart-card canvas { max-height: 240px; width: 100% !important; }
+.chart-card canvas { max-height: var(--chart-h); width: 100% !important; }
 
 .overview-duo {
   display: grid;
@@ -33,10 +53,12 @@
   margin-bottom: 14px;
 }
 .chart-card-centered canvas {
-  max-height: 300px;
+  max-height: var(--chart-h);
   margin: 4px auto 0;
   width: 100% !important;
 }
+/* Paired bar charts (Branches/Tags/Env/Users) share the same height. */
+.chart-card-full canvas { max-height: var(--chart-h); width: 100% !important; }
 
 .visuals-shell {
   display: flex;
@@ -87,8 +109,8 @@
   grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.4fr);
   align-items: start;
 }
-/* Let the paired bar chart be tall regardless of the stat-list height. */
-.breakdown-row-split .chart-card-full canvas { min-height: 280px; }
+/* Keep the paired bar chart at the shared height regardless of stat-list height. */
+.breakdown-row-split .chart-card-full canvas { min-height: var(--chart-h); }
 
 /* ── Breakdown (stat bars) ── */
 .breakdown-row {
@@ -131,6 +153,14 @@
   border-radius: var(--r);
   margin-bottom: 14px; overflow: hidden;
 }
+.failing-viewall {
+  display: block; width: 100%;
+  background: none; border: none; cursor: pointer;
+  padding: 10px 14px; border-top: 1px solid var(--border);
+  color: var(--accent, #4f8cff); font: inherit; font-size: 12px;
+  text-align: center; transition: .12s;
+}
+.failing-viewall:hover { background: var(--bg-2); }
 .failing-card-hd {
   display: flex; align-items: center;
   justify-content: space-between;

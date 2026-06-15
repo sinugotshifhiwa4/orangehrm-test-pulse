@@ -1,38 +1,55 @@
 /* ══════════════════════════════════════════
-   Release insight cards (shown on the Trends page)
+   Last 30 days summary cards (Overview page)
    ══════════════════════════════════════════ */
 import type { Run, RunSummary } from '../../app/types';
 import { Utils } from '../../app/core/utils';
 import { AnalyticsModule } from '../../app/core/analytics';
+
+const WINDOW_DAYS = 30;
+
+/** Absolute change as text, no leading sign — direction is conveyed by surrounding copy. */
+const magnitude = (delta: number, suffix = '%'): string => Utils.deltaLabel(Math.abs(delta), suffix).replace('+', '');
 
 export const ExecutiveModule = {
   render(runs: Run[]): void {
     const insights = document.getElementById('insight-cards');
     if (!insights) return;
 
-    if (!runs.length) {
-      insights.innerHTML = `<div class="insight-card"><div class="insight-label">Release Insights</div><div class="insight-value">No data</div><div class="insight-body">No runs match the current filters. Adjust the board filters to restore the insights.</div></div>`;
+    const cutoff = Date.now() - WINDOW_DAYS * 86400000;
+    const recent = runs.filter(r => (r._dateMs || 0) >= cutoff);
+
+    if (!recent.length) {
+      insights.innerHTML = `<div class="insight-card"><div class="insight-label">Last 30 Days Summary</div><div class="insight-value">No recent data</div><div class="insight-body">No runs in the last ${WINDOW_DAYS} days for the current filters. Adjust the board filters to restore the summary.</div></div>`;
       return;
     }
 
-    const summary = AnalyticsModule.summarize(runs);
+    const summary = AnalyticsModule.summarize(recent);
+
+    const healthLabel = summary.criticalFailingRuns > 0
+      ? 'At Risk'
+      : summary.releaseScore >= 90 ? 'Healthy'
+        : summary.releaseScore >= 75 ? 'Stable' : 'At Risk';
 
     const cards: { label: string; tone: RunSummary['decisionTone']; value: string; body: string }[] = [
       {
-        label: 'Release Recommendation',
+        label: 'Overall Health',
         tone: summary.decisionTone,
-        value: summary.releaseStatus,
-        body: summary.criticalFailingRuns > 0
-          ? 'Critical-tag failures are present, so release risk is elevated.'
-          : 'No critical-tag failures are blocking the current release view.',
+        value: `${healthLabel} · ${summary.releaseScore}/100`,
+        body: `Avg pass rate ${Utils.pct(summary.avgPass)} across ${recent.length} run${recent.length === 1 ? '' : 's'} in the last ${WINDOW_DAYS} days.`,
       },
       {
         label: 'Trend Movement',
-        tone: (summary.passDelta ?? 0) >= 0 ? 'good' : 'bad',
-        value: summary.passDelta == null ? 'Baseline forming' : `${Utils.deltaLabel(summary.passDelta)} pass rate`,
+        tone: (summary.passDelta == null || Math.abs(summary.passDelta) < 0.5 || summary.passDelta > 0) ? 'good' : 'bad',
+        value: summary.passDelta == null
+          ? 'Baseline forming'
+          : Math.abs(summary.passDelta) < 0.5
+            ? 'Steady pass rate'
+            : `${summary.passDelta > 0 ? 'Up' : 'Down'} ${magnitude(summary.passDelta)} pass rate`,
         body: summary.failureDelta == null
-          ? 'Waiting for more historical contrast from S3.'
-          : `Average failures per run are ${summary.failureDelta > 0 ? 'up' : summary.failureDelta < 0 ? 'down' : 'flat'} ${Utils.deltaLabel(summary.failureDelta, '')} versus the previous window.`,
+          ? 'Waiting for more history to compare against.'
+          : Math.abs(summary.failureDelta) < 0.5
+            ? 'Average failures per run are holding steady versus the first half of the last 30 days.'
+            : `Average failures per run are ${summary.failureDelta > 0 ? 'up' : 'down'} ${magnitude(summary.failureDelta, '')} versus the first half of the last 30 days.`,
       },
       {
         label: 'Failure Driver',
@@ -48,7 +65,9 @@ export const ExecutiveModule = {
         value: `${Utils.pct(summary.flakyRunShare)} flaky exposure`,
         body: summary.flakyDelta == null
           ? 'Tracking flaky prevalence as more history accumulates.'
-          : `Flaky exposure moved ${Utils.deltaLabel(summary.flakyDelta)} compared with the previous window.`,
+          : summary.flakyDelta === 0
+            ? 'Flaky exposure is unchanged versus the first half of the last 30 days.'
+            : `Flaky exposure is ${summary.flakyDelta > 0 ? 'up' : 'down'} ${magnitude(summary.flakyDelta)} versus the first half of the last 30 days.`,
       },
     ];
 

@@ -8,14 +8,8 @@ import { DropdownModule } from '../filters/dropdown';
 import { App } from '../../app/app';
 
 export const MobileModule = {
-  openSidebar(): void {
-    document.getElementById('sidebar')?.classList.add('open');
-    document.getElementById('sidebar-overlay')?.classList.add('visible');
-    document.body.style.overflow = 'hidden';
-  },
   closeSidebar(): void {
     document.getElementById('sidebar')?.classList.remove('open');
-    document.getElementById('sidebar-overlay')?.classList.remove('visible');
     document.body.style.overflow = '';
   },
   toggleFilterSheet(): void {

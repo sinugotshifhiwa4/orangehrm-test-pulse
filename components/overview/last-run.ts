@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   Latest-run approval panel + modal
+   Latest-run build summary panel + modal
    ══════════════════════════════════════════ */
 import type { Run } from '../../app/types';
 import { State } from '../../app/state';
@@ -8,11 +8,11 @@ import { Utils } from '../../app/core/utils';
 export const LastRunModule = {
   buildContent(target: Run | null): string {
     if (!target) return '';
-    const approval = target.status === 'PASS' && (target.flaky || 0) === 0
-      ? 'Go for release approval'
+    const summary = target.status === 'PASS' && (target.flaky || 0) === 0
+      ? 'Build passed cleanly'
       : target.status === 'PASS'
-        ? 'Review flaky signals before approval'
-        : 'Do not approve release yet';
+        ? 'Build passed with flaky tests'
+        : 'Build failed';
     const failedTests = (target.failedTests || []).slice(0, 6);
     const links = `
       <div class="links-cell">
@@ -23,10 +23,10 @@ export const LastRunModule = {
     return `
       <div class="last-run-modal-grid">
         <div class="last-run-modal-hero">
-          <div class="hero-kicker">Approval Snapshot</div>
+          <div class="hero-kicker">Build Summary</div>
           <div class="hero-title">Run #${Utils.escape(String(target.runNumber ?? '—'))}</div>
           <div class="hero-text">${Utils.escape(target.branch || 'unknown branch')} · ${Utils.escape(target.env || 'unknown env')} · ${Utils.escape(target.testType || 'unknown tag')} · ${target.formattedDate}</div>
-          <div class="last-run-approval ${target.status === 'PASS' && (target.flaky || 0) === 0 ? 'good' : target.status === 'PASS' ? 'warn' : 'bad'}">${approval}</div>
+          <div class="last-run-approval ${target.status === 'PASS' && (target.flaky || 0) === 0 ? 'good' : target.status === 'PASS' ? 'warn' : 'bad'}">${summary}</div>
         </div>
         <div class="last-run-modal-stats">
           <div class="last-run-modal-stat"><span>Pass rate</span><strong>${Utils.pct(target.passRate)}</strong></div>
@@ -39,13 +39,13 @@ export const LastRunModule = {
       </div>
       <div class="last-run-modal-section">
         <div class="section-hd">
-          <div class="section-title"><span class="section-title-dot"></span>Release Decision Support</div>
+          <div class="section-title"><span class="section-title-dot"></span>Build Details</div>
           ${links}
         </div>
         <div class="last-run-modal-notes">
-          <div class="hero-bullet">Status is <strong>${target.status}</strong> against the current release threshold of ${State.passThreshold}%.</div>
-          <div class="hero-bullet">${target.failed > 0 ? `${target.failed} failing tests require resolution or explicit sign-off.` : 'No failing tests were recorded in the latest run.'}</div>
-          <div class="hero-bullet">${(target.flaky || 0) > 0 ? `${target.flaky} flaky tests were detected and should be reviewed for release confidence.` : 'No flaky tests were recorded in the latest run.'}</div>
+          <div class="hero-bullet">Status is <strong>${target.status}</strong> against the pass threshold of ${State.passThreshold}%.</div>
+          <div class="hero-bullet">${target.failed > 0 ? `${target.failed} failing tests in this build.` : 'No failing tests were recorded in this build.'}</div>
+          <div class="hero-bullet">${(target.flaky || 0) > 0 ? `${target.flaky} flaky tests were detected in this build.` : 'No flaky tests were recorded in this build.'}</div>
         </div>
       </div>
       <div class="last-run-modal-section">
@@ -76,19 +76,19 @@ export const LastRunModule = {
       return;
     }
 
-    const approval = latest.status === 'PASS' && (latest.flaky || 0) === 0
-      ? { label: 'Approval Ready', tone: 'good', detail: 'Latest run cleared pass threshold with no flaky tests logged.' }
+    const summary = latest.status === 'PASS' && (latest.flaky || 0) === 0
+      ? { label: 'Build Passed', tone: 'good', detail: 'Latest run cleared the pass threshold with no flaky tests logged.' }
       : latest.status === 'PASS'
-        ? { label: 'Approve With Caution', tone: 'warn', detail: 'Latest run passed, but flaky activity was detected.' }
-        : { label: 'Hold Approval', tone: 'bad', detail: 'Latest run failed and should be reviewed before release approval.' };
+        ? { label: 'Passed With Flaky', tone: 'warn', detail: 'Latest run passed, but flaky activity was detected.' }
+        : { label: 'Build Failed', tone: 'bad', detail: 'Latest run failed and has failing tests to review.' };
 
     panel.innerHTML = `
-      <div class="last-run-card ${approval.tone}">
+      <div class="last-run-card ${summary.tone}">
         <div class="last-run-copy">
           <div class="last-run-kicker">Latest ${Utils.escape(Utils.titleCase(latest.testType || 'Selected'))} Run</div>
           <div class="last-run-title">Run #${Utils.escape(String(latest.runNumber ?? '—'))} · ${Utils.escape(latest.branch || 'unknown branch')}</div>
           <div class="last-run-text">${latest.formattedDate} · ${Utils.escape(latest.env || 'unknown env')} · ${Utils.escape(latest.testType || 'unknown tag')}</div>
-          <div class="last-run-text">${approval.detail}</div>
+          <div class="last-run-text">${summary.detail}</div>
         </div>
         <div class="last-run-metrics">
           <div class="last-run-metric">
@@ -109,7 +109,7 @@ export const LastRunModule = {
           </div>
         </div>
         <div class="last-run-actions">
-          <div class="last-run-approval ${approval.tone}">${approval.label}</div>
+          <div class="last-run-approval ${summary.tone}">${summary.label}</div>
           <button class="btn btn-primary" id="last-run-open-btn" type="button">Review Last Run</button>
         </div>
       </div>`;

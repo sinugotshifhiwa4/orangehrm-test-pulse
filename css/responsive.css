@@ -18,7 +18,7 @@
   .overview-duo    { grid-template-columns: 1fr; }
   .outcome-duo     { grid-template-columns: 1fr; }
   .reports-grid    { grid-template-columns: 1fr; }
-  .breakdown-row-split { grid-template-columns: 1fr; }
+  .breakdown-row.breakdown-row-split { grid-template-columns: 1fr; }
   .breakdown-row   { grid-template-columns: 1fr 1fr; }
   .breakdown-charts{ grid-template-columns: 1fr; }
   .last-run-modal-grid { grid-template-columns: 1fr; }
@@ -28,7 +28,6 @@
   .last-updated { display: none; }
   .header-right { gap: 4px; }
   .filters { gap: 4px; }
-  .header-search { max-width: 320px; min-width: 140px; }
 }
 
 /* ══════════════════════════════════
@@ -36,28 +35,8 @@
    ══════════════════════════════════ */
 @media (max-width: 680px) {
 
-  /* ── Sidebar: hidden by default, slides in ── */
-  .sidebar {
-    position: fixed;
-    left: -100%;
-    top: 0;
-    height: 100%;
-    width: 240px;
-    z-index: 300;
-    transition: left .25s ease;
-    box-shadow: 4px 0 24px #00000060;
-  }
-  .sidebar.open { left: 0; }
-
-  .sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: #00000070;
-    z-index: 299;
-    backdrop-filter: blur(2px);
-  }
-  .sidebar-overlay.visible { display: block; }
+  /* ── Sidebar hidden on mobile; the bottom nav handles navigation ── */
+  .sidebar { display: none; }
 
   /* ── Header ── */
   .header {
@@ -67,30 +46,11 @@
   /* hide desktop filters in header; show hamburger */
   .filters          { display: none; }
   .last-updated     { display: none; }
-  .header-title     { font-size: 12px; }
-
-  /* ── Hamburger button ── */
-  .hamburger {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
-    width: 34px;
-    height: 34px;
-    background: var(--bg-2);
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    cursor: pointer;
-    padding: 7px;
-    flex-shrink: 0;
-  }
-  .hamburger span {
-    display: block;
-    height: 1.5px;
-    background: var(--text-2);
-    border-radius: 2px;
-    transition: .2s;
-  }
+  .filter-chips     { display: none; }
+  .header-title     { font-size: 13px; }
+  /* Compact the Export button to an icon on the cramped mobile header. */
+  .header-right .export-label { display: none; }
+  .header-right .export-trigger .dd-caret { display: none; }
 
   /* ── Mobile filter button (show only on mobile) ── */
   .mobile-filter-btn { display: flex; }
@@ -122,7 +82,7 @@
   .reports-grid    { grid-template-columns: 1fr; }
   .visual-tabs     { width: 100%; }
   .visual-tab      { flex: 1 1 calc(50% - 6px); text-align: center; }
-  .breakdown-row-split { grid-template-columns: 1fr; }
+  .breakdown-row.breakdown-row-split { grid-template-columns: 1fr; }
   .breakdown-row   { grid-template-columns: 1fr; }
   .charts-row      { grid-template-columns: 1fr; }
   .breakdown-charts{ grid-template-columns: 1fr; }
@@ -357,10 +317,8 @@
 
 /* ── Desktop: hide mobile-only elements ── */
 @media (min-width: 681px) {
-  .hamburger        { display: none; }
   .mobile-filter-btn{ display: none; }
   .mobile-bottom-nav{ display: none; }
-  .sidebar-overlay  { display: none !important; }
 
   .filter-sheet-overlay {
     display: none;

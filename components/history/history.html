@@ -6,7 +6,23 @@
       <div style="display:flex;gap:6px;align-items:center">
         <input type="text" class="table-search" id="table-search" placeholder="Search runs…" />
         <span class="table-count" id="table-count"></span>
-        <button class="btn">↓ CSV</button>
+        <div class="dropdown-wrap export-wrap" id="export-dd-rh">
+          <button class="btn export-trigger" type="button">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M5 7l3 3 3-3M2.5 13h11"/></svg>
+            Export
+            <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+          </button>
+          <div class="dropdown-panel export-panel">
+            <button class="dd-option export-option" data-format="csv" type="button">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5"/><path d="M5 6h6M5 9h6M5 12h4"/></svg>
+              CSV
+            </button>
+            <button class="dd-option export-option" data-format="excel" type="button">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="1.5" width="11" height="13" rx="1.5"/><path d="M6 5l4 6M10 5l-4 6"/></svg>
+              Excel
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="table-wrap">
