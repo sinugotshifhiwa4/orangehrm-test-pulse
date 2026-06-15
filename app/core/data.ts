@@ -55,7 +55,7 @@ export const DataModule = {
             skipped: Number(run.skipped ?? 0),
             flaky: Number(run.flaky ?? 0),
             total: Number(run.total ?? 0),
-            userRole: run.userRole || run.role || run.triggeredBy || 'unknown',
+            project: run.project || 'unknown',
             failedTests: Array.isArray(run.failedTests) ? run.failedTests : [],
             formattedDate: Utils.formatDate(run.date),
             _dateMs: run.date ? new Date(run.date).getTime() : 0,

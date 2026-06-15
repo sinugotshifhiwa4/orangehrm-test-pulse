@@ -448,6 +448,6 @@ export const ChartModule = {
     this.barAvgPass(runs, 'testType', 'chart-bar-type');
     this.barAvgPass(runs, 'branch', 'chart-bar-branch');
     this.barCount(runs, 'env', 'chart-bar-env');
-    this.barAvgPass(runs, 'userRole', 'chart-bar-user');
+    this.barAvgPass(runs, 'project', 'chart-bar-project');
   },
 };

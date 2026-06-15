@@ -18,9 +18,7 @@ export interface RawRun {
   branch?: string;
   testType?: string;
   env?: string;
-  userRole?: string;
-  role?: string;
-  triggeredBy?: string;
+  project?: string;
   passed?: number;
   failed?: number;
   skipped?: number;
@@ -32,7 +30,7 @@ export interface RawRun {
   duration?: number | string | null;
   durationSec?: number | null;
   reportUrl?: string | null;
-  allureUrl?: string | null;
+  ortoniUrl?: string | null;
   failedTests?: FailedTest[];
 }
 
@@ -51,7 +49,7 @@ export interface Run {
   branch: string;
   testType: string;
   env?: string;
-  userRole: string;
+  project: string;
   passed: number;
   failed: number;
   skipped: number;
@@ -60,7 +58,7 @@ export interface Run {
   passRate: number | null;
   durationMin: number | null;
   reportUrl?: string | null;
-  allureUrl?: string | null;
+  ortoniUrl?: string | null;
   failedTests: FailedTest[];
   formattedDate: string;
   _dateMs: number;
@@ -76,7 +74,7 @@ export interface Filters {
   env: string;
   /** Multi-select tag filter (matched against testType). */
   testTags: string[];
-  userRole: string;
+  project: string;
   status: StatusFilter;
 }
 

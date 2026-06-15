@@ -8,7 +8,7 @@ export const MOCK_DATA: RawData = (() => {
   const types = ['authenticate', 'regression', 'smoke', 'e2e', 'sanity', 'skip-auth', 'dashboard'];
   const branches = ['main', 'develop', 'release/2.1', 'environment/QA', '4/merge'];
   const envs = ['staging', 'production', 'qa', 'uat'];
-  const roles = ['admin-user', 'general-user', 'unknown'];
+  const projects = ['chromium', 'firefox', 'webkit'];
   const failNames = [
     'Invalid Login Test Suite › should display invalid credentials error when submitting login form with incorrect username and password',
     'should display invalid credentials error when submitting login form with incorrect username and password',
@@ -41,11 +41,11 @@ export const MOCK_DATA: RawData = (() => {
         runs.push({
           runNumber: rn++, date: date.toISOString(), branch,
           env: envs[Math.floor(Math.random() * envs.length)],
-          userRole: roles[Math.floor(Math.random() * roles.length)],
+          project: projects[Math.floor(Math.random() * projects.length)],
           passed, failed, skipped, flaky, total, passRate,
           durationMin: +(Math.random() * 6 + 1).toFixed(2),
           reportUrl: failed > 0 ? 'https://example.com/report' : null,
-          allureUrl: 'https://example.com/allure',
+          ortoniUrl: 'https://example.com/ortoni',
           failedTests,
         });
       }

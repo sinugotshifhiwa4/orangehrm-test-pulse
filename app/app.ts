@@ -81,7 +81,7 @@ export const App = {
     this.bindClick(document.querySelector('#compare-bar .btn:not(#compare-btn)'), () => CompareModule.clear());
     this.bindClick(document.getElementById('compare-btn'), () => CompareModule.open());
 
-    ['dd-status', 'dd-branch', 'dd-env', 'dd-tags', 'dd-user'].forEach(id => {
+    ['dd-status', 'dd-branch', 'dd-env', 'dd-tags', 'dd-project'].forEach(id => {
       const trigger = document.querySelector(`#${id} .dropdown-trigger`);
       this.bindClick(trigger, e => {
         e.stopPropagation();
@@ -267,7 +267,7 @@ export const App = {
       !!State.filters.branch,
       !!State.filters.env,
       State.filters.testTags.length > 0,
-      !!State.filters.userRole,
+      !!State.filters.project,
       State.passThreshold !== 100,
     ].filter(Boolean).length;
     trigger.dataset.count = count > 0 ? String(count) : '';
@@ -285,7 +285,7 @@ export const App = {
     if (f.branch) chips.push({ kind: 'branch', label: f.branch });
     if (f.env) chips.push({ kind: 'env', label: f.env });
     f.testTags.forEach(t => chips.push({ kind: 'tag', value: t, label: `@${t}` }));
-    if (f.userRole) chips.push({ kind: 'user', label: f.userRole });
+    if (f.project) chips.push({ kind: 'project', label: f.project });
     if (State.passThreshold !== 100) chips.push({ kind: 'threshold', label: `Pass ≥ ${State.passThreshold}%` });
 
     if (chips.length === 0) { box.innerHTML = ''; return; }
@@ -330,10 +330,10 @@ export const App = {
         this._resetSheetRadio('filter-status-env');
         DropdownModule.updateSingleLabel('dd-env-label', 'All Envs', '');
         break;
-      case 'user':
-        f.userRole = '';
-        this._resetSheetRadio('filter-status-user');
-        DropdownModule.updateSingleLabel('dd-user-label', 'All Users', '');
+      case 'project':
+        f.project = '';
+        this._resetSheetRadio('filter-status-project');
+        DropdownModule.updateSingleLabel('dd-project-label', 'All Projects', '');
         break;
       case 'tag':
         f.testTags = f.testTags.filter(t => t !== value);

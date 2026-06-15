@@ -7,7 +7,7 @@ import { Utils } from './utils';
 
 export const FilterModule = {
   apply(): void {
-    const { branch, env, testTags, userRole, status } = State.filters;
+    const { branch, env, testTags, project, status } = State.filters;
     const cutoff = State.dateRangeDays > 0 ? Date.now() - State.dateRangeDays * 86400000 : 0;
     const thr = State.passThreshold;
     const search = State.tableSearch.trim().toLowerCase();
@@ -18,7 +18,7 @@ export const FilterModule = {
         if (branch && r.branch !== branch) return false;
         if (env && r.env !== env) return false;
         if (testTags.length > 0 && !testTags.includes(r.testType)) return false;
-        if (userRole && r.userRole !== userRole) return false;
+        if (project && r.project !== project) return false;
         return true;
       })
       .map(r => ({

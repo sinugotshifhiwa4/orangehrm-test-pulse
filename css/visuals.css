@@ -57,7 +57,7 @@ body.sidebar-collapsed .visuals-shell { --chart-h: 280px; }
   margin: 4px auto 0;
   width: 100% !important;
 }
-/* Paired bar charts (Branches/Tags/Env/Users) share the same height. */
+/* Paired bar charts (Branches/Tags/Env/Projects) share the same height. */
 .chart-card-full canvas { max-height: var(--chart-h); width: 100% !important; }
 
 .visuals-shell {

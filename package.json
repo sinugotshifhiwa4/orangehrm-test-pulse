@@ -1,7 +1,7 @@
 {
   "name": "orangehrm-test-pulse",
   "version": "1.0.0",
-  "description": "OrangeHRM QA Analytics dashboard",
+  "description": "Orange HRM Test Pulse dashboard",
   "type": "module",
   "scripts": {
     "dev": "vite",

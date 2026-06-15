@@ -8,7 +8,7 @@ const COLUMNS: { key: keyof Run; label: string }[] = [
   { key: 'date', label: 'Date' },
   { key: 'branch', label: 'Branch' },
   { key: 'testType', label: 'Tag' },
-  { key: 'userRole', label: 'User Role' },
+  { key: 'project', label: 'Project' },
   { key: 'env', label: 'Environment' },
   { key: 'passRate', label: 'Pass Rate %' },
   { key: 'passed', label: 'Passed' },

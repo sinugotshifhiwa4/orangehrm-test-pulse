@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════
-   Stat-bar breakdowns (by tag, branch, env, user)
+   Stat-bar breakdowns (by tag, branch, env, project)
    ══════════════════════════════════════════ */
 import type { Run } from '../../app/types';
 import { State } from '../../app/state';
@@ -26,6 +26,6 @@ export const BreakdownModule = {
     this.render(runs, 'testType', 'breakdown-type');
     this.render(runs, 'branch', 'breakdown-branch');
     this.render(runs, 'env', 'breakdown-env');
-    this.render(runs, 'userRole', 'breakdown-user');
+    this.render(runs, 'project', 'breakdown-project');
   },
 };

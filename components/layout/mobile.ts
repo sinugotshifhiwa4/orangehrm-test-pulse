@@ -31,7 +31,7 @@ export const MobileModule = {
     document.body.style.overflow = '';
   },
   clearFilters(): void {
-    State.filters = { branch: '', env: '', testTags: [], userRole: '', status: '' };
+    State.filters = { branch: '', env: '', testTags: [], project: '', status: '' };
     State.dateRangeDays = 0;
     State.passThreshold = 100;
     // Reset all radios/checkboxes in sheet
@@ -50,7 +50,7 @@ export const MobileModule = {
     DropdownModule.updateSingleLabel('dd-status-label', 'Filter Status', '');
     DropdownModule.updateSingleLabel('dd-branch-label', 'All Branches', '');
     DropdownModule.updateSingleLabel('dd-env-label', 'All Envs', '');
-    DropdownModule.updateSingleLabel('dd-user-label', 'All Users', '');
+    DropdownModule.updateSingleLabel('dd-project-label', 'All Projects', '');
     DropdownModule.updateTagsLabel();
     App.updateUI();
   },
@@ -60,7 +60,7 @@ export const MobileModule = {
     const runs = State.allRuns;
     this._buildSheetRadio('fs-branch-panel', Utils.unique(runs.map(r => r.branch)).sort(), 'branch', 'filter-status-branch');
     this._buildSheetRadio('fs-env-panel', Utils.unique(runs.map(r => r.env || '')).sort(), 'env', 'filter-status-env');
-    this._buildSheetRadio('fs-user-panel', Utils.unique(runs.map(r => r.userRole)).sort(), 'userRole', 'filter-status-user');
+    this._buildSheetRadio('fs-project-panel', Utils.unique(runs.map(r => r.project)).sort(), 'project', 'filter-status-project');
     this._buildSheetCheckbox('fs-tags-panel', Utils.unique(runs.map(r => r.testType)).sort());
 
     // Status radios
@@ -111,8 +111,8 @@ export const MobileModule = {
       input.addEventListener('change', () => {
         (State.filters[filterKey] as string) = input.value;
         // sync desktop dropdown label
-        const labelMap: Record<string, string> = { branch: 'dd-branch-label', env: 'dd-env-label', userRole: 'dd-user-label' };
-        const allMap: Record<string, string> = { branch: 'All Branches', env: 'All Envs', userRole: 'All Users' };
+        const labelMap: Record<string, string> = { branch: 'dd-branch-label', env: 'dd-env-label', project: 'dd-project-label' };
+        const allMap: Record<string, string> = { branch: 'All Branches', env: 'All Envs', project: 'All Projects' };
         if (labelMap[filterKey]) DropdownModule.updateSingleLabel(labelMap[filterKey], allMap[filterKey], input.value);
         App.updateUI();
       });

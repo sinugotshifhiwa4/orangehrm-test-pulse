@@ -24,7 +24,7 @@ export const DropdownModule = {
     }
   },
 
-  /** Build a single-select radio panel (branch, env, user) */
+  /** Build a single-select radio panel (branch, env, project) */
   buildRadioPanel(panelId: string, values: string[], filterKey: keyof Filters, labelId: string, allLabel: string): void {
     const panel = document.getElementById(panelId);
     if (!panel) return;
@@ -97,7 +97,7 @@ export const DropdownModule = {
     this.buildRadioPanel('dd-branch-panel', runs.map(r => r.branch), 'branch', 'dd-branch-label', 'All Branches');
     this.buildRadioPanel('dd-env-panel', runs.map(r => r.env || ''), 'env', 'dd-env-label', 'All Envs');
     this.buildTagsPanel(runs.map(r => r.testType));
-    this.buildRadioPanel('dd-user-panel', runs.map(r => r.userRole), 'userRole', 'dd-user-label', 'All Users');
+    this.buildRadioPanel('dd-project-panel', runs.map(r => r.project), 'project', 'dd-project-label', 'All Projects');
 
     // Status radio listeners
     document.querySelectorAll<HTMLInputElement>('input[name="filter-status"]').forEach(input => {

@@ -78,7 +78,7 @@ export const ReportModule = {
       State.filters.branch ? `Branch: ${State.filters.branch}` : 'Branch: all',
       State.filters.env ? `Env: ${State.filters.env}` : 'Env: all',
       State.filters.testTags.length ? `Tags: ${State.filters.testTags.join(', ')}` : 'Tags: all',
-      State.filters.userRole ? `User: ${State.filters.userRole}` : 'User: all',
+      State.filters.project ? `Project: ${State.filters.project}` : 'Project: all',
       State.filters.status ? `Status: ${State.filters.status}` : `Threshold: ${State.passThreshold}%`,
     ];
     const dateSpan = from && to
@@ -341,7 +341,7 @@ export const ReportModule = {
     this.setText(pdf, this.palette.panel);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(11);
-    pdf.text('ORANGEHRM QA ANALYTICS', 20, 29);
+    pdf.text('ORANGE HRM TEST PULSE', 20, 29);
     this.setText(pdf, this.palette.text);
     pdf.setFontSize(28);
     pdf.text(title, 16, 56);
@@ -701,7 +701,7 @@ export const ReportModule = {
       );
       guidanceY = this.addWrappedText(
         pdf,
-        latest.allureUrl ? `Allure report: ${latest.allureUrl}` : 'Allure link was not attached to this run.',
+        latest.ortoniUrl ? `Ortoni report: ${latest.ortoniUrl}` : 'Ortoni link was not attached to this run.',
         18, guidanceY + 4, 174,
       );
 

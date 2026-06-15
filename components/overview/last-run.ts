@@ -17,7 +17,7 @@ export const LastRunModule = {
     const links = `
       <div class="links-cell">
         ${target.reportUrl ? `<a href="${Utils.escape(target.reportUrl)}" target="_blank" class="link-btn">Report</a>` : `<span class="link-btn disabled">Report</span>`}
-        ${target.allureUrl ? `<a href="${Utils.escape(target.allureUrl)}" target="_blank" class="link-btn">Allure</a>` : `<span class="link-btn disabled">Allure</span>`}
+        ${target.ortoniUrl ? `<a href="${Utils.escape(target.ortoniUrl)}" target="_blank" class="link-btn">Ortoni</a>` : `<span class="link-btn disabled">Ortoni</span>`}
       </div>`;
 
     return `

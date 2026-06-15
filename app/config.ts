@@ -5,7 +5,7 @@ import type { RgbColor } from './types';
 
 /** Public R2 bucket holding the rolling test-results history. */
 export const DATA_URL =
-  'https://pub-1a2929fbcaf44458951bbb84b49b5f3f.r2.dev/orangehrm-automation/test-results-history.json';
+  'https://pub-07f5cb69bc504f5f8ba2b3074690f23c.r2.dev/test-history.json';
 
 /** Shared Chart.js look-and-feel. */
 export const CHART_DEFAULTS = {

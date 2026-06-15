@@ -11,7 +11,7 @@ export const State: AppState = {
     branch: '',
     env: '',
     testTags: [], // multi-select array (was testType)
-    userRole: '',
+    project: '',
     status: '',
   },
   dateRangeDays: 0,

@@ -65,7 +65,7 @@ export const Utils = {
       run.branch,
       run.testType,
       run.env,
-      run.userRole,
+      run.project,
       run.runNumber,
       run.formattedDate,
       run.status,

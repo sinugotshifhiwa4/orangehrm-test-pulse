@@ -37,16 +37,16 @@ export const TableModule = {
       const rLink = r.reportUrl
         ? `<a href="${Utils.escape(r.reportUrl)}" target="_blank" class="link-btn">Report</a>`
         : `<span class="link-btn disabled">Report</span>`;
-      const aLink = r.allureUrl
-        ? `<a href="${Utils.escape(r.allureUrl)}" target="_blank" class="link-btn">Allure</a>`
-        : `<span class="link-btn disabled">Allure</span>`;
+      const aLink = r.ortoniUrl
+        ? `<a href="${Utils.escape(r.ortoniUrl)}" target="_blank" class="link-btn">Ortoni</a>`
+        : `<span class="link-btn disabled">Ortoni</span>`;
       return `<tr class="${r.status === 'FAIL' ? 'row-fail' : ''}${sel ? ' row-compare' : ''}">
         <td><input type="checkbox" class="cmp-cb" data-run-number="${r.runNumber}" ${sel ? 'checked' : ''} ${!sel && State.compareIds.size >= 2 ? 'disabled' : ''} /></td>
         <td class="mono">#${r.runNumber ?? '—'}</td>
         <td class="mono col-hide">${r.formattedDate}</td>
         <td class="mono">${Utils.escape(r.branch || '—')}</td>
         <td class="col-hide"><span class="pill pill-purple">@${Utils.escape(r.testType || '—')}</span></td>
-        <td class="col-hide"><span class="pill pill-orange">${Utils.escape(r.userRole || '—')}</span></td>
+        <td class="col-hide"><span class="pill pill-orange">${Utils.escape(r.project || '—')}</span></td>
         <td class="col-hide"><span class="pill pill-blue">${Utils.escape(r.env || '—')}</span></td>
         <td>
           <div class="rate-bar">
@@ -72,8 +72,8 @@ export const TableModule = {
                 <span class="pill pill-purple">@${Utils.escape(r.testType || '—')}</span>
               </div>
               <div class="mobile-detail-item">
-                <span class="mobile-detail-label">User</span>
-                <span class="pill pill-orange">${Utils.escape(r.userRole || '—')}</span>
+                <span class="mobile-detail-label">Project</span>
+                <span class="pill pill-orange">${Utils.escape(r.project || '—')}</span>
               </div>
               <div class="mobile-detail-item">
                 <span class="mobile-detail-label">Env</span>
