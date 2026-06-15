@@ -1,0 +1,47 @@
+<!-- ══ MOBILE FILTER SHEET ══ -->
+<div class="filter-sheet-overlay" id="filter-sheet-overlay"></div>
+<div class="filter-sheet" id="filter-sheet">
+  <div class="filter-sheet-hd">
+    <span style="font-weight:600;font-size:13px">Filters</span>
+    <button class="modal-close">✕</button>
+  </div>
+  <div class="filter-sheet-body">
+    <!-- Date range -->
+    <div class="fs-section-label">Date Range</div>
+    <div class="date-group" id="date-group-mobile" style="display:flex;width:100%">
+      <button class="date-pill" data-days="7" style="flex:1">7d</button>
+      <button class="date-pill" data-days="30" style="flex:1">30d</button>
+      <button class="date-pill" data-days="90" style="flex:1">90d</button>
+      <button class="date-pill active" data-days="0" style="flex:1">All</button>
+    </div>
+    <!-- Status -->
+    <div class="fs-section-label">Status</div>
+    <div id="fs-status-panel" class="fs-options">
+      <label class="dd-option"><input type="radio" name="filter-status-m" value="" checked /> All Statuses</label>
+      <label class="dd-option"><input type="radio" name="filter-status-m" value="PASS" /><span class="dd-dot" style="background:var(--green)"></span>Passed</label>
+      <label class="dd-option"><input type="radio" name="filter-status-m" value="FAIL" /><span class="dd-dot" style="background:var(--red)"></span>Failed</label>
+    </div>
+    <!-- Branch -->
+    <div class="fs-section-label">Branch</div>
+    <div id="fs-branch-panel" class="fs-options"></div>
+    <!-- Env -->
+    <div class="fs-section-label">Environment</div>
+    <div id="fs-env-panel" class="fs-options"></div>
+    <!-- Tags -->
+    <div class="fs-section-label">Test Tags</div>
+    <div id="fs-tags-panel" class="fs-options"></div>
+    <!-- User -->
+    <div class="fs-section-label">User Role</div>
+    <div id="fs-user-panel" class="fs-options"></div>
+    <!-- Pass threshold -->
+    <div class="fs-section-label">Pass Rate Filter</div>
+    <div class="threshold-chip" style="width:100%;justify-content:space-between">
+      Pass Rate Filter ≥ <input type="range" id="pass-threshold-m" min="80" max="100" step="1" value="100"/>
+      <span class="threshold-val" id="threshold-val-m">100%</span>
+    </div>
+  </div>
+  <div class="filter-sheet-footer">
+    <button class="btn" style="flex:1">Clear All</button>
+    <button class="btn btn-primary" style="flex:1">Apply</button>
+  </div>
+</div>

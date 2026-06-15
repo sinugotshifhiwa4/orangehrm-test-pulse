@@ -1,0 +1,40 @@
+<!-- ── Run History ── -->
+<div id="page-runs" class="page fade-in">
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div class="section-title"><span class="section-title-dot"></span>Run History</div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input type="text" class="table-search" id="table-search" placeholder="Search runs…" />
+        <span class="table-count" id="table-count"></span>
+        <button class="btn">↓ CSV</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="runs-table">
+        <thead>
+          <tr>
+            <th style="width:32px"></th>
+            <th data-col="runNumber">Run #</th>
+            <th data-col="formattedDate" class="col-hide">Date</th>
+            <th data-col="branch">Branch</th>
+            <th data-col="testType" class="col-hide">Tag</th>
+            <th data-col="userRole" class="col-hide">User</th>
+            <th data-col="env" class="col-hide">Env</th>
+            <th data-col="passRate">Pass %</th>
+            <th data-col="failed">Fails</th>
+            <th data-col="flaky" class="col-hide">Flaky</th>
+            <th data-col="durationMin" class="col-hide">Duration</th>
+            <th data-col="status">Status</th>
+            <th class="col-hide">Links</th>
+          </tr>
+        </thead>
+        <tbody id="runs-tbody"></tbody>
+      </table>
+    </div>
+    <div class="cmp-bar hidden" id="compare-bar">
+      <span><span class="hl" id="cmp-count">0</span> selected</span>
+      <button class="btn btn-primary" id="compare-btn">⇄ Compare</button>
+      <button class="btn">✕ Clear</button>
+    </div>
+  </div>
+</div>

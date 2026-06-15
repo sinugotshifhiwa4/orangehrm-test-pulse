@@ -1,0 +1,158 @@
+/* ══════════════════════════════════════════
+   Global — design tokens, reset, shared primitives
+   (buttons, badges, pills, section headers, states)
+   ══════════════════════════════════════════ */
+
+/* ── Variables ── */
+:root {
+  --bg:         #0e0f13;
+  --bg-1:       #14161c;
+  --bg-2:       #1a1d26;
+  --bg-3:       #21263a;
+  --border:     #ffffff0f;
+  --border-md:  #ffffff17;
+  --text-1:     #f0f1f5;
+  --text-2:     #7c82a0;
+  --text-3:     #44495e;
+  --green:      #22d17b;
+  --green-bg:   #22d17b12;
+  --red:        #f25f5c;
+  --red-bg:     #f25f5c12;
+  --yellow:     #f5c542;
+  --yellow-bg:  #f5c54212;
+  --blue:       #4f8ef7;
+  --blue-bg:    #4f8ef712;
+  --orange:     #f97316;
+  --orange-bg:  #f9731612;
+  --purple:     #a78bfa;
+  --accent:     #4f8ef7;
+  --sidebar-w:  200px;
+  --header-h:   52px;
+  --r:          7px;
+  --r-sm:       5px;
+  --font:       'DM Sans', system-ui, sans-serif;
+  --mono:       'DM Mono', monospace;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 13px; }
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+a { color: var(--accent); text-decoration: none; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 2px; }
+
+/* ── Pages ── */
+.page { padding: 16px; display: none; }
+.page.active { display: block; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 5px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-2); color: var(--text-2);
+  font-family: var(--mono); font-size: 10px;
+  cursor: pointer; transition: .12s;
+  white-space: nowrap; font-weight: 500;
+}
+.btn:hover { border-color: var(--border-md); color: var(--text-1); }
+.btn-icon { padding: 5px 8px; }
+.btn-primary {
+  background: var(--blue-bg);
+  border-color: #4f8ef722;
+  color: var(--blue);
+  font-weight: 600;
+}
+.btn-primary:hover { background: #4f8ef720; }
+.btn-export-image {
+  background: var(--bg-2);
+  border-color: var(--border);
+  color: var(--text-2);
+  font-size: 10px;
+  font-family: var(--mono);
+  padding: 5px 8px;
+}
+.btn-export-image:hover {
+  color: var(--text-1);
+  border-color: var(--border-md);
+}
+.btn-export-image:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+/* ── Section header ── */
+.section-hd {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 10px;
+}
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.section-title {
+  font-size: 12px; font-weight: 600; color: var(--text-1);
+  display: flex; align-items: center; gap: 7px;
+}
+.section-title-dot {
+  width: 3px; height: 13px; border-radius: 2px;
+  background: var(--accent); flex-shrink: 0;
+}
+.section-sub { font-size: 10px; color: var(--text-3); font-family: var(--mono); }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 7px; border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  font-family: var(--mono); letter-spacing: .03em;
+}
+.badge::before {
+  content: ''; width: 5px; height: 5px;
+  border-radius: 50%; background: currentColor; flex-shrink: 0;
+}
+.badge-pass { background: var(--green-bg); color: var(--green); }
+.badge-fail { background: var(--red-bg); color: var(--red); }
+.badge-skip { background: var(--yellow-bg); color: var(--yellow); }
+
+/* ── Pills ── */
+.pill {
+  display: inline-block; padding: 2px 6px;
+  border-radius: 4px; font-size: 10px; font-family: var(--mono);
+}
+.pill-blue   { background: var(--blue-bg);   color: var(--blue);   }
+.pill-orange { background: var(--orange-bg); color: var(--orange); }
+.pill-purple { background: #a78bfa12;        color: var(--purple); }
+
+/* ── Loading / Error states ── */
+.state-overlay {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 60vh; gap: 12px;
+}
+.spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border-md);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.state-title { font-size: 13px; font-weight: 500; color: var(--text-2); }
+
+/* ── Animations ── */
+.fade-in { animation: fadeIn .2s ease; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}

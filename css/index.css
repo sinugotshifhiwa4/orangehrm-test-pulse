@@ -1,0 +1,15 @@
+/* ══════════════════════════════════════════
+   Stylesheet entry — imported once from app/main.ts.
+   Order matters: shared tokens/primitives first,
+   feature styles next, responsive overrides last.
+   ══════════════════════════════════════════ */
+@import './global.css';
+@import './layout.css';
+@import './filters.css';
+@import './overview.css';
+@import './trends.css';
+@import './visuals.css';
+@import './history.css';
+@import './reports.css';
+@import './modals.css';
+@import './responsive.css';

@@ -1,0 +1,18 @@
+<!-- Mock banner -->
+<div id="mock-banner">
+  ⚠ DEMO MODE — Live fetch failed. Showing mock data. &nbsp;
+  <span id="mock-error-detail" style="color:var(--text-3)"></span>
+  <a href="https://developers.cloudflare.com/r2/buckets/cors/" target="_blank" style="margin-left:auto;color:var(--blue)">Fix CORS →</a>
+</div>
+
+<!-- Loading -->
+<div id="loading-state" class="state-overlay">
+  <div class="spinner"></div>
+  <div class="state-title">Loading test data…</div>
+</div>
+
+<!-- Error -->
+<div id="error-state" class="state-overlay" style="display:none">
+  <div style="color:var(--red);font-family:var(--mono);font-size:11px;text-align:center;max-width:360px" id="error-message"></div>
+  <button class="btn btn-primary">↺ Retry</button>
+</div>

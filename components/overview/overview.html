@@ -1,0 +1,44 @@
+<!-- ── Overview (landing) ── -->
+<div id="page-overview" class="page fade-in">
+
+  <!-- KPI summary cards with trend deltas -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- Outcome composition + success trend -->
+  <div class="ov-row ov-row-2">
+    <div class="chart-card">
+      <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Outcome Composition</div></div>
+      <div class="outcome-split">
+        <div class="outcome-chart"><canvas id="chart-outcome-ov"></canvas></div>
+        <div class="outcome-stats" id="outcome-stats"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="section-hd"><div class="section-title"><span class="section-title-dot"></span>Success Trend</div></div>
+      <canvas id="chart-passrate-ov" style="max-height:220px"></canvas>
+    </div>
+  </div>
+
+  <!-- Latest run status -->
+  <div class="last-run-panel" id="last-run-panel"></div>
+
+  <!-- Recent runs table -->
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div class="section-title"><span class="section-title-dot"></span>Recent Runs</div>
+      <button class="btn" id="recent-view-all" type="button">View all →</button>
+    </div>
+    <div class="table-wrap">
+      <div id="recent-runs"></div>
+    </div>
+  </div>
+
+  <!-- Top failing tests for quick investigation -->
+  <div class="failing-card">
+    <div class="failing-card-hd">
+      <div class="section-title"><span class="section-title-dot"></span>Top Failing Tests</div>
+      <span class="section-sub" id="top-failing-sub-ov"></span>
+    </div>
+    <div id="top-failing-list-ov"></div>
+  </div>
+</div>

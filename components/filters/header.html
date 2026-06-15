@@ -1,0 +1,104 @@
+<!-- Header -->
+<header class="header">
+  <!-- Hamburger (mobile only) -->
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="header-title">Test <span>Analytics</span></div>
+
+  <!-- ── Filter bar ── -->
+  <div class="filters" id="header-filters">
+
+    <!-- Date range pills -->
+    <div class="date-group" id="date-group">
+      <button class="date-pill" data-days="7">7d</button>
+      <button class="date-pill" data-days="30">30d</button>
+      <button class="date-pill" data-days="90">90d</button>
+      <button class="date-pill active" data-days="0">All</button>
+    </div>
+
+    <!-- Status dropdown -->
+    <div class="dropdown-wrap" id="dd-status">
+      <button class="dropdown-trigger">
+        <span class="dd-label" id="dd-status-label">Filter Status</span>
+        <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-panel" id="dd-status-panel">
+        <label class="dd-option"><input type="radio" name="filter-status" value="" checked /> All Statuses</label>
+        <label class="dd-option"><input type="radio" name="filter-status" value="PASS" /> <span class="dd-dot" style="background:var(--green)"></span>Passed</label>
+        <label class="dd-option"><input type="radio" name="filter-status" value="FAIL" /> <span class="dd-dot" style="background:var(--red)"></span>Failed</label>
+      </div>
+    </div>
+
+    <!-- Branch dropdown -->
+    <div class="dropdown-wrap" id="dd-branch">
+      <button class="dropdown-trigger">
+        <span class="dd-label" id="dd-branch-label">Filter Branch</span>
+        <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-panel" id="dd-branch-panel">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Environment dropdown -->
+    <div class="dropdown-wrap" id="dd-env">
+      <button class="dropdown-trigger">
+        <span class="dd-label" id="dd-env-label">Filter Env</span>
+        <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-panel" id="dd-env-panel">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Test Tags multi-select dropdown -->
+    <div class="dropdown-wrap" id="dd-tags">
+      <button class="dropdown-trigger">
+        <span class="dd-label" id="dd-tags-label">Filter Tags</span>
+        <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-panel" id="dd-tags-panel">
+        <!-- populated by JS with checkboxes for multi-select -->
+      </div>
+    </div>
+
+    <!-- User dropdown -->
+    <div class="dropdown-wrap" id="dd-user">
+      <button class="dropdown-trigger">
+        <span class="dd-label" id="dd-user-label">Filter User</span>
+        <svg class="dd-caret" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="dropdown-panel" id="dd-user-panel">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- Search -->
+    <input type="text" class="header-search" id="header-search" placeholder="Search test, suite, or file…" />
+
+    <!-- Pass threshold -->
+    <div class="threshold-chip">
+      Pass Rate Filter ≥ <input type="range" id="pass-threshold" min="80" max="100" step="1" value="100"/>
+      <span class="threshold-val" id="threshold-val">100%</span>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <span class="last-updated" id="last-updated">—</span>
+    <!-- Filter icon (mobile) -->
+    <button class="btn btn-icon mobile-filter-btn" title="Filters" aria-label="Filters">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+        <line x1="3" y1="5" x2="17" y2="5"></line>
+        <circle cx="8" cy="5" r="2.2" fill="currentColor" stroke="none"></circle>
+        <line x1="3" y1="10" x2="17" y2="10"></line>
+        <circle cx="13" cy="10" r="2.2" fill="currentColor" stroke="none"></circle>
+        <line x1="3" y1="15" x2="17" y2="15"></line>
+        <circle cx="6" cy="15" r="2.2" fill="currentColor" stroke="none"></circle>
+      </svg>
+    </button>
+    <button class="btn">↓ CSV</button>
+    <button class="btn btn-primary btn-icon" title="Refresh">↺</button>
+  </div>
+</header>

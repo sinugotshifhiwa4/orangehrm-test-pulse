@@ -1,0 +1,14 @@
+/* ══════════════════════════════════════════
+   Trends page — full-width chart cards
+   ══════════════════════════════════════════ */
+.charts-full { display: flex; flex-direction: column; gap: 8px; }
+.chart-card-full {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 14px;
+}
+.chart-card-full canvas { max-height: 200px; margin-top: 6px; }
+.breakdown-charts {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
