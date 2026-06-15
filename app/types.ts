@@ -118,6 +118,12 @@ export interface RunSummary {
   releaseScore: number;
   releaseStatus: string;
   decisionTone: 'good' | 'warn' | 'bad';
+  /** Test-weighted pass rate (sum passed / sum total). */
+  weightedPassRate: number;
+  /** Share of selected runs that failed, as a percentage. */
+  failedRunShare: number;
+  /** Run-health score for the analytics Overview card (0–100). */
+  runHealth: number;
   passDelta: number | null;
   failureDelta: number | null;
   flakyDelta: number | null;

@@ -25,17 +25,18 @@ export const ExecutiveModule = {
 
     const summary = AnalyticsModule.summarize(recent);
 
-    const healthLabel = summary.criticalFailingRuns > 0
-      ? 'At Risk'
-      : summary.releaseScore >= 90 ? 'Healthy'
-        : summary.releaseScore >= 75 ? 'Stable' : 'At Risk';
+    // Run-health: how healthy the selected runs were. No critical-tag override — the
+    // filtered dataset already scopes what counts (e.g. filtering to authenticate).
+    const health = summary.runHealth;
+    const healthLabel = health >= 90 ? 'Healthy' : health >= 75 ? 'Stable' : 'At Risk';
+    const healthTone: RunSummary['decisionTone'] = health >= 90 ? 'good' : health >= 75 ? 'warn' : 'bad';
 
     const cards: { label: string; tone: RunSummary['decisionTone']; value: string; body: string }[] = [
       {
         label: 'Overall Health',
-        tone: summary.decisionTone,
-        value: `${healthLabel} · ${summary.releaseScore}/100`,
-        body: `Avg pass rate ${Utils.pct(summary.avgPass)} across ${recent.length} run${recent.length === 1 ? '' : 's'} in the last ${WINDOW_DAYS} days.`,
+        tone: healthTone,
+        value: `${healthLabel} · ${health}/100`,
+        body: `Weighted pass rate ${Utils.pct(summary.weightedPassRate)} across ${recent.length} run${recent.length === 1 ? '' : 's'} in the last ${WINDOW_DAYS} days.`,
       },
       {
         label: 'Trend Movement',

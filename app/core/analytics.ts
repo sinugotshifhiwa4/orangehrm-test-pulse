@@ -71,6 +71,14 @@ export const AnalyticsModule = {
         ? 'Release With Caution'
         : 'Hold Release';
     const decisionTone: RunSummary['decisionTone'] = releaseStatus === 'Ready to Release' ? 'good' : releaseStatus === 'Release With Caution' ? 'warn' : 'bad';
+
+    // Run-health model for the analytics Overview card: a test-weighted pass rate
+    // docked lightly for the share of runs that failed and the share that were flaky.
+    // Unlike releaseScore (a release gate), this has no hard critical-tag override —
+    // it simply reflects how healthy the *currently selected* runs were.
+    const weightedPassRate = Utils.ratio(Utils.sum(runs.map(r => r.passed || 0)), Utils.sum(runs.map(r => r.total || 0)));
+    const failedRunShare = Utils.ratio(failingRuns, runs.length);
+    const runHealth = Math.round(Utils.clamp(weightedPassRate - failedRunShare * 0.1 - flakyRunShare * 0.1, 0, 100));
     const windows = this.splitRuns(runs);
     const currentAvgPass = Utils.avg(windows.current.map(r => r.passRate || 0));
     const previousAvgPass = Utils.avg(windows.previous.map(r => r.passRate || 0));
@@ -96,6 +104,9 @@ export const AnalyticsModule = {
       releaseScore,
       releaseStatus,
       decisionTone,
+      weightedPassRate,
+      failedRunShare,
+      runHealth,
       passDelta: Utils.delta(currentAvgPass, previousAvgPass),
       failureDelta: Utils.delta(currentAvgFailures, previousAvgFailures),
       flakyDelta: Utils.delta(currentFlakyShare, previousFlakyShare),
