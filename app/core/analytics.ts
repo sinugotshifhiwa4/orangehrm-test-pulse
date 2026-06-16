@@ -57,7 +57,8 @@ export const AnalyticsModule = {
     const failingRuns = runs.filter(r => r.status === 'FAIL').length;
     const totalFailures = Utils.sum(runs.map(r => r.failed || 0));
     const totalFlaky = Utils.sum(runs.map(r => r.flaky || 0));
-    const flakyRunShare = Utils.ratio(runs.filter(r => (r.flaky || 0) > 0).length, runs.length);
+    const flakyRunCount = runs.filter(r => (r.flaky || 0) > 0).length;
+    const flakyRunShare = Utils.ratio(flakyRunCount, runs.length);
     const criticalRuns = runs.filter(r => this.criticalTags.has(String(r.testType || '').toLowerCase()));
     const criticalFailingRuns = criticalRuns.filter(r => r.status === 'FAIL').length;
     const passPenalty = 100 - avgPass;
@@ -98,6 +99,7 @@ export const AnalyticsModule = {
       failingRuns,
       totalFailures,
       totalFlaky,
+      flakyRunCount,
       flakyRunShare,
       criticalRuns,
       criticalFailingRuns,

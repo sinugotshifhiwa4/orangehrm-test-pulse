@@ -63,12 +63,14 @@ export const ExecutiveModule = {
       {
         label: 'Stability Risk',
         tone: summary.flakyRunShare < 10 ? 'good' : summary.flakyRunShare < 25 ? 'warn' : 'bad',
-        value: `${Utils.pct(summary.flakyRunShare)} flaky exposure`,
-        body: summary.flakyDelta == null
-          ? 'Tracking flaky prevalence as more history accumulates.'
-          : summary.flakyDelta === 0
-            ? 'Flaky exposure is unchanged versus the first half of the last 30 days.'
-            : `Flaky exposure is ${summary.flakyDelta > 0 ? 'up' : 'down'} ${magnitude(summary.flakyDelta)} versus the first half of the last 30 days.`,
+        // Run-level metric: the share of runs that contained any flaky test, not a flaky-test count.
+        value: `${Utils.pct(summary.flakyRunShare)} of runs flaky`,
+        body: (() => {
+          const base = `${summary.flakyRunCount} of ${recent.length} run${recent.length === 1 ? '' : 's'} in the last ${WINDOW_DAYS} days had flaky tests.`;
+          if (summary.flakyDelta == null) return `${base} Tracking the trend as more history accumulates.`;
+          if (summary.flakyDelta === 0) return `${base} Unchanged versus the first half of the window.`;
+          return `${base} That share is ${summary.flakyDelta > 0 ? 'up' : 'down'} ${magnitude(summary.flakyDelta)} versus the first half of the window.`;
+        })(),
       },
     ];
 

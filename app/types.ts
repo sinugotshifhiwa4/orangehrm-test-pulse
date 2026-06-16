@@ -112,6 +112,9 @@ export interface RunSummary {
   failingRuns: number;
   totalFailures: number;
   totalFlaky: number;
+  /** Number of selected runs that contained at least one flaky test. */
+  flakyRunCount: number;
+  /** Share of selected runs that contained at least one flaky test, as a percentage. */
   flakyRunShare: number;
   criticalRuns: Run[];
   criticalFailingRuns: number;
