@@ -20,6 +20,35 @@ interface ReportOptions {
 export const ReportModule = {
   palette: REPORT_PALETTE,
 
+  /** Overall-tab scope overrides: date window + sprint label layered on the dashboard filters. */
+  overrides: { from: '', to: '', sprint: '' } as { from: string; to: string; sprint: string },
+
+  /** Runs used by the Overall reports — dashboard-filtered, optionally narrowed by date window. */
+  scopedRuns(): Run[] {
+    const { from, to } = this.overrides;
+    if (!from && !to) return State.filteredRuns;
+    const fromMs = from ? new Date(`${from}T00:00:00`).getTime() : -Infinity;
+    const toMs = to ? new Date(`${to}T23:59:59`).getTime() : Infinity;
+    return State.filteredRuns.filter(r => r._dateMs >= fromMs && r._dateMs <= toMs);
+  },
+
+  sprintLabel(): string {
+    return this.overrides.sprint ? `Sprint: ${this.overrides.sprint}` : '';
+  },
+
+  renderScopeNote(): void {
+    const el = document.getElementById('report-scope-note');
+    if (!el) return;
+    const runs = this.scopedRuns();
+    const { from, to, sprint } = this.overrides;
+    const parts = [`${runs.length} run${runs.length === 1 ? '' : 's'} in scope`];
+    parts.push((from || to)
+      ? `Date: ${from ? Utils.formatDateOnly(from) : '…'} → ${to ? Utils.formatDateOnly(to) : '…'}`
+      : 'Date: dashboard range');
+    if (sprint) parts.push(`Sprint: ${sprint}`);
+    el.textContent = parts.join('  ·  ');
+  },
+
   getPdf(): jsPDF {
     return new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   },
@@ -453,14 +482,16 @@ export const ReportModule = {
   async downloadOverall(): Promise<void> {
     await this.runWithButton('report-overall-btn', async () => {
       const pdf = this.getPdf();
-      const latest = this.latestRun();
-      const summary = AnalyticsModule.summarize(State.filteredRuns);
-      const scope = this.scopeMeta(State.filteredRuns);
-      await this.ensureTrendChartsReady(State.filteredRuns);
+      const runs = this.scopedRuns();
+      const latest = this.latestRun(runs);
+      const summary = AnalyticsModule.summarize(runs);
+      const scope = this.scopeMeta(runs);
+      const sprint = this.sprintLabel();
+      await this.ensureTrendChartsReady(runs);
       this.addCover(
         pdf,
         'Overall Automation Report',
-        `This report is designed for management and HOD review. It summarizes overall automation execution health, recent trends, risk concentration, and the latest run summary across the selected reporting scope. Date span: ${scope.dateSpan}.`,
+        `This report is designed for management and HOD review. It summarizes overall automation execution health, recent trends, risk concentration, and the latest run summary across the selected reporting scope. Date span: ${scope.dateSpan}.${sprint ? ` ${sprint}.` : ''}`,
         'Automation Health Summary',
         {
           focusLabel: 'REPORT FOCUS',
@@ -488,7 +519,7 @@ export const ReportModule = {
       this.setText(pdf, this.palette.muted);
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
-      pdf.text(`Report scope: ${State.filteredRuns.length} runs across the current dashboard filters.`, 110, 38);
+      pdf.text(`Report scope: ${runs.length} runs in the selected report scope.`, 110, 38);
       pdf.text(`Date span: ${scope.dateSpan}`, 110, 54);
       pdf.text(`Latest run: #${latest?.runNumber ?? '-'} | ${latest?.testType || 'Unknown tag'} | ${latest?.env || 'Unknown env'}`, 110, 46);
 
@@ -496,7 +527,7 @@ export const ReportModule = {
       this.addMetricCard(pdf, 60, 68, 42, 26, 'Avg Pass Rate', Utils.pct(summary.avgPass), this.palette.green);
       this.addMetricCard(pdf, 106, 68, 42, 26, 'Failing Runs', summary.failingRuns, summary.failingRuns > 0 ? this.palette.red : this.palette.text);
       this.addMetricCard(pdf, 152, 68, 44, 26, 'Flaky Count', summary.totalFlaky, summary.totalFlaky > 0 ? this.palette.yellow : this.palette.text);
-      this.addMetricCard(pdf, 14, 98, 42, 26, 'Total Runs', State.filteredRuns.length, this.palette.text);
+      this.addMetricCard(pdf, 14, 98, 42, 26, 'Total Runs', runs.length, this.palette.text);
       this.addMetricCard(pdf, 60, 98, 42, 26, 'Avg Failures', summary.avgFailures.toFixed(1), summary.avgFailures > 0 ? this.palette.red : this.palette.text);
       this.addMetricCard(pdf, 106, 98, 42, 26, 'Critical Fails', summary.criticalFailingRuns, summary.criticalFailingRuns > 0 ? this.palette.red : this.palette.text);
       this.addMetricCard(pdf, 152, 98, 44, 26, 'Latest Status', latest?.status || 'N/A', latest?.status === 'PASS' ? this.palette.green : this.palette.red);
@@ -587,22 +618,25 @@ export const ReportModule = {
       this.addCanvasPanel(pdf, 'chart-duration', 'Execution Duration Trend', 'Average run duration across the current reporting window.', 164, 108);
 
       this.savePdf(pdf, `overall-release-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+      if (runs !== State.filteredRuns) ChartModule.renderAll(State.filteredRuns);
     });
   },
 
   async downloadLastRun(): Promise<void> {
     await this.runWithButton('report-last-run-btn', async () => {
-      const latest = this.latestRun();
+      const runs = this.scopedRuns();
+      const latest = this.latestRun(runs);
       if (!latest) throw new Error('No latest run available');
-      await this.ensureTrendChartsReady(State.filteredRuns);
+      await this.ensureTrendChartsReady(runs);
       const pdf = this.getPdf();
       const decision = this.decisionMeta(latest);
-      const scope = this.scopeMeta(State.filteredRuns);
+      const scope = this.scopeMeta(runs);
+      const sprint = this.sprintLabel();
 
       this.addCover(
         pdf,
         'Last Run Approval Report',
-        `This report focuses on the latest selected run and is intended to support an explicit management go / no-go approval decision. Reporting date span: ${scope.dateSpan}.`,
+        `This report focuses on the latest selected run and is intended to support an explicit management go / no-go approval decision. Reporting date span: ${scope.dateSpan}.${sprint ? ` ${sprint}.` : ''}`,
         decision.text,
         {
           focusLabel: 'RELEASE DECISION',
@@ -743,6 +777,7 @@ export const ReportModule = {
       }
 
       this.savePdf(pdf, `last-run-approval-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+      if (runs !== State.filteredRuns) ChartModule.renderAll(State.filteredRuns);
     });
   },
 };

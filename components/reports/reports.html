@@ -1,22 +1,81 @@
 <!-- ── Reports ── -->
 <div id="page-reports" class="page fade-in">
   <div class="reports-shell">
-    <div class="reports-hero">
-      <div class="hero-kicker">Management Reports</div>
-      <div class="hero-title">Automation Report Packs</div>
-      <div class="hero-text">Generate management-ready PDFs for overall automation performance or for the latest run go / no-go decision.</div>
-      <div class="report-scope" id="report-scope-summary"></div>
-    </div>
-    <div class="reports-grid">
-      <div class="report-card">
-        <div class="section-title"><span class="section-title-dot"></span>Overall Automation Report</div>
-        <div class="report-copy">Creates a shareable PDF of automation run health, trends, outcomes, and the latest run summary for overall programme reporting.</div>
-        <button class="btn btn-primary report-btn" id="report-overall-btn" type="button">Download Overall PDF</button>
+    <div class="reports-header">
+      <div class="reports-headline">
+        <div class="section-title"><span class="section-title-dot"></span>Management Reports</div>
+        <div class="section-sub">Generate management-ready PDF packs — scoped performance summaries, or a live build report driven by dashboard data and charts.</div>
       </div>
-      <div class="report-card">
-        <div class="section-title"><span class="section-title-dot"></span>Last Run Approval Report</div>
-        <div class="report-copy">Creates a focused approval pack for the latest selected run with status, pass rate, failures, flaky signals, and release recommendation.</div>
-        <button class="btn btn-primary report-btn" id="report-last-run-btn" type="button">Download Last Run PDF</button>
+      <div class="report-tabs" id="report-tabs" role="tablist">
+        <button class="report-tab active" data-report-tab="overall" role="tab" type="button">Overall</button>
+        <button class="report-tab" data-report-tab="build" role="tab" type="button">Build Report</button>
+      </div>
+    </div>
+
+    <div class="report-scope" id="report-scope-summary"></div>
+
+    <!-- Overall tab -->
+    <div class="report-panel active" data-report-panel="overall">
+      <div class="report-controls">
+        <div class="report-control">
+          <label class="report-control-label" for="report-date-from">Date from</label>
+          <input type="date" id="report-date-from" class="report-input" />
+        </div>
+        <div class="report-control">
+          <label class="report-control-label" for="report-date-to">Date to</label>
+          <input type="date" id="report-date-to" class="report-input" />
+        </div>
+        <div class="report-control">
+          <label class="report-control-label" for="report-sprint">Sprint</label>
+          <input type="text" id="report-sprint" class="report-input" placeholder="e.g. Sprint 24" />
+        </div>
+        <button class="btn report-control-reset" id="report-scope-reset" type="button">Reset</button>
+      </div>
+      <div class="report-scope-note" id="report-scope-note"></div>
+
+      <div class="reports-grid">
+        <div class="report-card">
+          <div class="section-title"><span class="section-title-dot"></span>Overall Automation Report</div>
+          <div class="report-copy">Creates a shareable PDF of automation run health, trends, outcomes, and the latest run summary for the selected date scope and sprint.</div>
+          <button class="btn btn-primary report-btn" id="report-overall-btn" type="button">Download Overall PDF</button>
+        </div>
+        <div class="report-card">
+          <div class="section-title"><span class="section-title-dot"></span>Last Run Approval Report</div>
+          <div class="report-copy">Creates a focused approval pack for the latest run in scope with status, pass rate, failures, flaky signals, and release recommendation.</div>
+          <button class="btn btn-primary report-btn" id="report-last-run-btn" type="button">Download Last Run PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Build Report tab -->
+    <div class="report-panel" data-report-panel="build">
+      <div class="reports-grid reports-grid-single">
+        <div class="report-card">
+          <div class="section-title"><span class="section-title-dot"></span>OrangeHRM Build Report (PDF)</div>
+          <div class="report-copy">Fills the stakeholder-ready <strong>PDF</strong> build report template with live dashboard data. Build details, health metrics, and the Test Suite Overview &amp; Execution Trends charts are pulled from the site at build time, so the report always reflects the current data.</div>
+
+          <div class="build-form">
+            <div class="report-control">
+              <label class="report-control-label" for="build-number">Build number</label>
+              <input type="text" id="build-number" class="report-input" placeholder="e.g. 142" />
+            </div>
+            <div class="report-control">
+              <label class="report-control-label" for="build-date">Build date</label>
+              <input type="date" id="build-date" class="report-input" />
+            </div>
+            <div class="report-control">
+              <label class="report-control-label" for="build-prepared-by">Prepared by</label>
+              <input type="text" id="build-prepared-by" class="report-input" placeholder="Automation Team" />
+            </div>
+            <div class="report-control">
+              <label class="report-control-label" for="build-audience">Audience</label>
+              <input type="text" id="build-audience" class="report-input" placeholder="Stakeholders" />
+            </div>
+          </div>
+
+          <div class="report-scope-note" id="build-default-note"></div>
+          <button class="btn btn-primary report-btn" id="report-build-btn" type="button">Build Now</button>
+        </div>
       </div>
     </div>
   </div>
