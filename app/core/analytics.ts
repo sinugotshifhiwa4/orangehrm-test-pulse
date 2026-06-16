@@ -18,8 +18,15 @@ export const AnalyticsModule = {
 
   classifyFailure(test: FailedTest = {}): string {
     const haystack = `${test.name || ''} ${test.classname || ''} ${test.failureMessage || ''}`.toLowerCase();
-    if (/(api|request|response|endpoint|graphql)/.test(haystack)) return 'API';
+    // HTTP 5xx (500 and up) is a server/infrastructure fault — e.g. a 502/503 gateway
+    // error while resetting a password. Bucket it on its own instead of blaming the
+    // feature under test. Word boundaries keep "500" from matching inside "5000".
+    if (/\b5\d{2}\b/.test(haystack)) return 'Server Error';
+    // 4xx and everything else is a real functional issue, so resolve the exact category.
+    // Check Auth first: a UI flow logs in before doing anything else, so an auth break
+    // upstream shouldn't be mislabelled "API" just because the message mentions a request.
     if (/(auth|login|logout|password|session|credential|token)/.test(haystack)) return 'Auth';
+    if (/(api|request|response|endpoint|graphql)/.test(haystack)) return 'API';
     if (/(data|fixture|db|database|employee|record|seed|sync)/.test(haystack)) return 'Data';
     if (/(ui|locator|page|modal|button|form|dashboard|grid|table|click|visible)/.test(haystack)) return 'UI';
     return 'Workflow';
