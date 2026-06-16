@@ -4,6 +4,9 @@ import { defineConfig } from 'vite';
 // /app/main.ts as an ES module. `npm run build` emits a deployable dist/.
 export default defineConfig({
   root: '.',
+  // Wrangler injects the Cloudflare Vite plugin here during deploy; the array
+  // must exist for its auto-configuration to find an insertion point.
+  plugins: [],
   build: {
     outDir: 'dist',
     target: 'es2020',
