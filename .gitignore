@@ -3,7 +3,7 @@ node_modules
 dist
 *.local
 
-# wrangler files
+# wrangler files (Cloudflare Workers local state / secrets)
 .wrangler
 .dev.vars*
 !.dev.vars.example
