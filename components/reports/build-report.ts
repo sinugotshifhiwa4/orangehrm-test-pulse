@@ -95,15 +95,15 @@ export const BuildReportModule = {
     const latest = this.latestRun();
     const numEl = document.getElementById('build-number') as HTMLInputElement | null;
     const dateEl = document.getElementById('build-date') as HTMLInputElement | null;
-    const note = document.getElementById('build-default-note');
-    if (note) {
-      note.textContent = latest
-        ? `Defaults from the Overview "Latest ${Utils.titleCase(latest.testType || 'Selected')} Run": #${latest.runNumber ?? '—'} · ${latest.formattedDate}`
-        : 'No runs in scope yet.';
-    }
-    if (!latest) return;
-    if (numEl && numEl.dataset.touched !== '1') numEl.value = String(latest.runNumber ?? latest.buildNumber ?? '');
-    if (dateEl && dateEl.dataset.touched !== '1') dateEl.value = this.ymd(latest);
+    // Defaults: latest build number + today's date. Both stay editable (the
+    // dataset.touched guard leaves any value the user has typed untouched).
+    if (numEl && numEl.dataset.touched !== '1') numEl.value = latest ? String(latest.runNumber ?? latest.buildNumber ?? '') : '';
+    if (dateEl && dateEl.dataset.touched !== '1') dateEl.value = this.today();
+  },
+
+  today(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   },
 
   meta(latest: Run | null): BuildMeta {
@@ -460,6 +460,7 @@ export const BuildReportModule = {
       const bytes = await doc.save();
       const safe = map.buildNumber.replace(/[^a-z0-9]+/gi, '-') || new Date().toISOString().slice(0, 10);
       ReportModule.downloadBlob(new Blob([bytes as BlobPart], { type: 'application/pdf' }), `OrangeHRM-Build-Report-${safe}.pdf`);
+      ReportModule.toast('Build report generated successfully');
     });
   },
 };

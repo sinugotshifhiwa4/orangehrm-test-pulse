@@ -69,6 +69,20 @@ export const ReportModule = {
     this.downloadBlob(blob, filename);
   },
 
+  /** Brief green success toast, bottom-right, auto-dismissing. */
+  toast(message: string): void {
+    const el = document.createElement('div');
+    el.className = 'app-toast app-toast-success';
+    el.setAttribute('role', 'status');
+    el.textContent = message;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 300);
+    }, 3200);
+  },
+
   async runWithButton(buttonId: string, task: () => Promise<void>): Promise<void> {
     const button = document.getElementById(buttonId) as HTMLButtonElement | null;
     const original = button?.textContent;
