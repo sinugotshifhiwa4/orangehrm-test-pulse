@@ -95,8 +95,50 @@
 }
 .fw-doc:hover { border-color: var(--border-md); color: var(--text-1); background: var(--bg-3); }
 
+/* ── Author ── */
+.fw-author { display: flex; gap: 16px; align-items: flex-start; }
+.fw-author-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue), #7c5cff);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: .02em;
+}
+.fw-author-main { min-width: 0; }
+.fw-author-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.fw-author-role {
+  font-size: 10px;
+  color: var(--blue);
+  font-family: var(--mono);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.fw-author-bio {
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.7;
+  margin: 10px 0 14px;
+  max-width: 640px;
+}
+.fw-author-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.fw-author-links .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 11px;
+}
+
 @media (max-width: 680px) {
   .fw-grid { grid-template-columns: 1fr; }
   .fw-flow-arrow { display: none; }
   .fw-flow-step { flex-basis: 100%; }
+  .fw-author { flex-direction: column; }
 }

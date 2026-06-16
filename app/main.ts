@@ -16,7 +16,6 @@ import visuals from '../components/visuals/visuals.html?raw';
 import history from '../components/history/history.html?raw';
 import reports from '../components/reports/reports.html?raw';
 import framework from '../components/framework/framework.html?raw';
-import footer from '../components/layout/footer.html?raw';
 import compareModal from '../components/history/compare-modal.html?raw';
 import lastRunModal from '../components/overview/last-run-modal.html?raw';
 
@@ -41,7 +40,6 @@ function mountLayout(): void {
           ${reports}
           ${framework}
         </div>
-        ${footer}
       </div>
     </div>
     ${compareModal}
