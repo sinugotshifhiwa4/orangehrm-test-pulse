@@ -20,11 +20,15 @@ interface ReportOptions {
 export const ReportModule = {
   palette: REPORT_PALETTE,
 
-  /** Overall-tab scope overrides: date window + sprint label layered on the dashboard filters. */
+  /** Overall-tab scope mode: 'overall' = full dashboard-filtered history, 'sprint' = narrowed by the date window/sprint below. */
+  scopeMode: 'overall' as 'overall' | 'sprint',
+
+  /** Sprint-mode scope overrides: date window + sprint label layered on the dashboard filters. */
   overrides: { from: '', to: '', sprint: '' } as { from: string; to: string; sprint: string },
 
-  /** Runs used by the Overall reports — dashboard-filtered, optionally narrowed by date window. */
+  /** Runs used by the Overall reports — dashboard-filtered, narrowed by the date window only in sprint mode. */
   scopedRuns(): Run[] {
+    if (this.scopeMode !== 'sprint') return State.filteredRuns;
     const { from, to } = this.overrides;
     if (!from && !to) return State.filteredRuns;
     const fromMs = from ? new Date(`${from}T00:00:00`).getTime() : -Infinity;
@@ -33,19 +37,23 @@ export const ReportModule = {
   },
 
   sprintLabel(): string {
-    return this.overrides.sprint ? `Sprint: ${this.overrides.sprint}` : '';
+    return this.scopeMode === 'sprint' && this.overrides.sprint ? `Sprint: ${this.overrides.sprint}` : '';
   },
 
   renderScopeNote(): void {
     const el = document.getElementById('report-scope-note');
     if (!el) return;
     const runs = this.scopedRuns();
-    const { from, to, sprint } = this.overrides;
     const parts = [`${runs.length} run${runs.length === 1 ? '' : 's'} in scope`];
-    parts.push((from || to)
-      ? `Date: ${from ? Utils.formatDateOnly(from) : '…'} → ${to ? Utils.formatDateOnly(to) : '…'}`
-      : 'Date: dashboard range');
-    if (sprint) parts.push(`Sprint: ${sprint}`);
+    if (this.scopeMode === 'sprint') {
+      const { from, to, sprint } = this.overrides;
+      parts.push((from || to)
+        ? `Date: ${from ? Utils.formatDateOnly(from) : '…'} → ${to ? Utils.formatDateOnly(to) : '…'}`
+        : 'Date: all history');
+      if (sprint) parts.push(`Sprint: ${sprint}`);
+    } else {
+      parts.push('Scope: all history · dashboard filters');
+    }
     el.textContent = parts.join('  ·  ');
   },
 
@@ -493,8 +501,8 @@ export const ReportModule = {
     return this.decisionMeta(run).text;
   },
 
-  async downloadOverall(): Promise<void> {
-    await this.runWithButton('report-overall-btn', async () => {
+  async downloadOverall(buttonId = 'report-overall-btn'): Promise<void> {
+    await this.runWithButton(buttonId, async () => {
       const pdf = this.getPdf();
       const runs = this.scopedRuns();
       const latest = this.latestRun(runs);
@@ -636,8 +644,8 @@ export const ReportModule = {
     });
   },
 
-  async downloadLastRun(): Promise<void> {
-    await this.runWithButton('report-last-run-btn', async () => {
+  async downloadLastRun(buttonId = 'report-last-run-btn'): Promise<void> {
+    await this.runWithButton(buttonId, async () => {
       const runs = this.scopedRuns();
       const latest = this.latestRun(runs);
       if (!latest) throw new Error('No latest run available');
