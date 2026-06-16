@@ -10,7 +10,7 @@ import { CHART_COLORS, CHART_DEFAULTS } from '../../app/config';
 type TooltipItemLike = { dataIndex: number; dataset: { label?: string }; formattedValue: string };
 
 interface CenterTextLine { text: string; font: string; color: string; }
-interface CenterTextOpts { lines: CenterTextLine[]; gauge?: boolean; }
+interface CenterTextOpts { lines: CenterTextLine[]; gauge?: boolean; lineStep?: number; }
 
 /**
  * Draws stacked lines of text in the hole of a doughnut/gauge chart.
@@ -28,10 +28,11 @@ const centerTextPlugin = {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const n = opt.lines.length;
+    const step = opt.lineStep ?? 17;
     opt.lines.forEach((line, i) => {
       ctx.font = line.font;
       ctx.fillStyle = line.color;
-      ctx.fillText(line.text, cx, cy + (i - (n - 1) / 2) * 17);
+      ctx.fillText(line.text, cx, cy + (i - (n - 1) / 2) * step);
     });
     ctx.restore();
   },
@@ -93,10 +94,9 @@ export const ChartModule = {
     } as ChartConfiguration);
   },
 
-  failures(runs: Run[], id = 'chart-failures'): void {
+  failures(runs: Run[], id = 'chart-failures', full = id === 'chart-failures-full'): void {
     const s = [...runs].sort((a, b) => a._dateMs - b._dateMs).slice(-40);
-    const isTrendsView = id === 'chart-failures-full';
-    if (isTrendsView) {
+    if (full) {
       this.create(id, {
         type: 'bar',
         data: {
@@ -167,10 +167,9 @@ export const ChartModule = {
     } as ChartConfiguration);
   },
 
-  flaky(runs: Run[], id = 'chart-flaky'): void {
+  flaky(runs: Run[], id = 'chart-flaky', full = id === 'chart-flaky-full'): void {
     const s = [...runs].sort((a, b) => a._dateMs - b._dateMs).slice(-40);
-    const isTrendsView = id === 'chart-flaky-full';
-    if (isTrendsView) {
+    if (full) {
       this.create(id, {
         type: 'line',
         data: {

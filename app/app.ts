@@ -22,6 +22,7 @@ import { CompareModule } from '../components/history/compare';
 import { ExportModule } from '../components/history/export-csv';
 import { ExportImageModule } from '../components/reports/export-image';
 import { ReportModule } from '../components/reports/report';
+import { BuildReportModule } from '../components/reports/build-report';
 
 export const App = {
   bindClick(el: Element | null, handler: (e: Event) => void): void {
@@ -58,6 +59,8 @@ export const App = {
     this.bindClick(document.querySelector('.header-right .btn[title="Refresh"]'), () => this.refresh());
     this.bindClick(document.getElementById('report-overall-btn'), () => ReportModule.downloadOverall());
     this.bindClick(document.getElementById('report-last-run-btn'), () => ReportModule.downloadLastRun());
+    this.bindClick(document.getElementById('report-build-btn'), () => BuildReportModule.build());
+    this.bindReportControls();
 
     document.querySelectorAll<HTMLElement>('.export-trigger').forEach(trigger => {
       this.bindClick(trigger, e => {
@@ -100,6 +103,45 @@ export const App = {
     });
 
     ExportImageModule.enhance();
+  },
+
+  /** Reports page: sub-tab switching, Overall date/sprint scope, build defaults. */
+  bindReportControls(): void {
+    document.querySelectorAll<HTMLElement>('.report-tab').forEach(tab => {
+      this.bindClick(tab, () => {
+        const name = tab.dataset.reportTab || '';
+        document.querySelectorAll<HTMLElement>('.report-tab').forEach(t => t.classList.toggle('active', t === tab));
+        document.querySelectorAll<HTMLElement>('.report-panel').forEach(p => p.classList.toggle('active', p.dataset.reportPanel === name));
+      });
+    });
+
+    const from = document.getElementById('report-date-from') as HTMLInputElement | null;
+    const to = document.getElementById('report-date-to') as HTMLInputElement | null;
+    const sprint = document.getElementById('report-sprint') as HTMLInputElement | null;
+    const syncScope = (): void => {
+      ReportModule.overrides = {
+        from: from?.value || '',
+        to: to?.value || '',
+        sprint: sprint?.value.trim() || '',
+      };
+      ReportModule.renderScopeNote();
+    };
+    from?.addEventListener('change', syncScope);
+    to?.addEventListener('change', syncScope);
+    sprint?.addEventListener('input', syncScope);
+
+    this.bindClick(document.getElementById('report-scope-reset'), () => {
+      if (from) from.value = '';
+      if (to) to.value = '';
+      if (sprint) sprint.value = '';
+      syncScope();
+    });
+
+    // Build number/date default to the Overview latest run until the user edits them.
+    ['build-number', 'build-date'].forEach(id => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      el?.addEventListener('input', () => { el.dataset.touched = el.value.trim() ? '1' : ''; });
+    });
   },
 
   SIDEBAR_COLLAPSED_KEY: 'qa-sidebar-collapsed',
@@ -255,6 +297,8 @@ export const App = {
     VisualsModule.show(State.visualSection);
     TableModule.render();
     ReportModule.renderScopeSummary();
+    ReportModule.renderScopeNote();
+    BuildReportModule.syncDefaults();
     ExportImageModule.enhance();
   },
 
