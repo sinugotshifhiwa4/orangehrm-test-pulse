@@ -105,6 +105,25 @@ export interface LabelCount {
   count: number;
 }
 
+/** Two-axis classification of a single failure: functional area + failure type. */
+export interface FailureClass {
+  /** Where it broke — Auth / API / UI / Data / Workflow (always resolvable). */
+  area: string;
+  /** Why it broke — Server Error / Config / Timeout / Assertion, or null when the
+      feed carries no error message to judge from. */
+  type: string | null;
+}
+
+/** A functional area with its failure count and the breakdown of failure types in it. */
+export interface FailureGroup {
+  area: string;
+  count: number;
+  /** Most common known failure type within this area, or null if none captured. */
+  topType: string | null;
+  /** Per-type counts within this area (only failures that carried a message). */
+  types: LabelCount[];
+}
+
 export interface RunSummary {
   latest: Run | null;
   avgPass: number;
@@ -131,6 +150,8 @@ export interface RunSummary {
   failureDelta: number | null;
   flakyDelta: number | null;
   categoryCounts: LabelCount[];
+  /** Failures grouped by functional area, each with its failure-type breakdown. */
+  failureGroups: FailureGroup[];
   moduleCounts: LabelCount[];
   topCategory: LabelCount | null;
   topModule: LabelCount | null;

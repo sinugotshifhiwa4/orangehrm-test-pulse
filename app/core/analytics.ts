@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════
    Release-health analytics engine
    ══════════════════════════════════════════ */
-import type { FailedTest, LabelCount, Run, RunSummary } from '../types';
+import type { FailedTest, FailureClass, FailureGroup, LabelCount, Run, RunSummary } from '../types';
 import { Utils } from './utils';
 
 export const AnalyticsModule = {
@@ -16,20 +16,70 @@ export const AnalyticsModule = {
     };
   },
 
-  classifyFailure(test: FailedTest = {}): string {
-    const haystack = `${test.name || ''} ${test.classname || ''} ${test.failureMessage || ''}`.toLowerCase();
-    // HTTP 5xx (500 and up) is a server/infrastructure fault — e.g. a 502/503 gateway
-    // error while resetting a password. Bucket it on its own instead of blaming the
-    // feature under test. Word boundaries keep "500" from matching inside "5000".
-    if (/\b5\d{2}\b/.test(haystack)) return 'Server Error';
-    // 4xx and everything else is a real functional issue, so resolve the exact category.
-    // Check Auth first: a UI flow logs in before doing anything else, so an auth break
-    // upstream shouldn't be mislabelled "API" just because the message mentions a request.
-    if (/(auth|login|logout|password|session|credential|token)/.test(haystack)) return 'Auth';
-    if (/(api|request|response|endpoint|graphql)/.test(haystack)) return 'API';
-    if (/(data|fixture|db|database|employee|record|seed|sync)/.test(haystack)) return 'Data';
-    if (/(ui|locator|page|modal|button|form|dashboard|grid|table|click|visible)/.test(haystack)) return 'UI';
+  /** Two-axis failure classification: WHERE it broke (area) and WHY (type). */
+  classifyFailure(test: FailedTest = {}): FailureClass {
+    return { area: this.failureArea(test), type: this.failureType(test) };
+  },
+
+  /** Failure TYPE — the "why" — derived from the error message only. Returns null
+      when the feed carries no message, since the path/title can't tell us how it broke. */
+  failureType(test: FailedTest = {}): string | null {
+    // Directory paths (.../login/..., .../ui/...) are misleading for failure type,
+    // so type signals are matched against the message text, never the path.
+    const msg = String(test.failureMessage || '').toLowerCase();
+    if (!msg.trim()) return null;
+    // HTTP 5xx (500 and up) is a server/infrastructure fault — e.g. a 502/503/504
+    // gateway error. Word boundaries keep "500" from matching inside "5000".
+    if (/\b5\d{2}\b/.test(msg)) return 'Server Error';
+    // Browser launch / runtime / environment faults: bad CLI args, closed browser,
+    // missing executable, OOM on /dev/shm.
+    if (/browsertype\.launch|browser has been closed|target (?:page|context|browser).*(?:closed|crashed)|unknown option|cannot parse arguments|executable doesn'?t exist|playwright install|pw_run|ms-playwright|dev\/shm/.test(msg)) return 'Config';
+    // Navigation / routing: the page never reached the expected URL (e.g. a login
+    // that stayed on /auth/login), a failed goto, or a connection-level error.
+    // Keyed on the URL assertion itself so a toBeVisible timeout stays a Timeout.
+    if (/tohaveurl|to have url|page\.goto|net::err|err_connection|err_name_not_resolved|err_aborted/.test(msg)) return 'Navigation';
+    // A locator/assertion that never resolved — the most common Playwright failure.
+    // Covers explicit timeouts ("timed out", "timeout 100000ms", "waiting for ...")
+    // and the bare auto-waiting assertions that exhaust their wait without saying so
+    // (e.g. "expect(locator).toBeVisible() failed", "element(s) not found").
+    if (/(timed out|timeout \d|exceeded.*timeout|waiting for|element\(s\) not found|expect\([^)]*\)\.\w+\([^)]*\) failed|\.(?:tobevisible|tohavetext|tohavecount|tobeenabled|tobechecked|tocontaintext)\b)/.test(msg)) return 'Timeout';
+    // Any other expectation that resolved but mismatched (value/state assertion).
+    if (/(expect|assert|to equal|tobe|received|expected)/.test(msg)) return 'Assertion';
+    return 'Error';
+  },
+
+  /** Functional AREA — the "where" — derived from the test title + spec file name. */
+  failureArea(test: FailedTest = {}): string {
+    // Use only the spec file's basename, not its folder path, so a footer test that
+    // happens to live under .../login/ isn't mislabelled "Auth".
+    const file = String(test.classname || '').split(/[\\/]/).pop() || '';
+    const title = `${test.name || ''} ${file}`.toLowerCase();
+    if (/(login|logout|password|sign[ -]?in|sign[ -]?out|credential|session|token|otp|auth)/.test(title)) return 'Auth';
+    if (/(api|request|response|endpoint|graphql|status code)/.test(title)) return 'API';
+    if (/(footer|header|menu|sidebar|navbar|nav|breadcrumb|dashboard|page|modal|dialog|button|form|grid|table|column|link|icon|banner|tooltip|label|text|title|element|display|visible|render)/.test(title)) return 'UI';
+    if (/(employee|record|leave|pim|admin|recruit|payroll|report|data|fixture|seed|import|export)/.test(title)) return 'Data';
     return 'Workflow';
+  },
+
+  /** Group failures by functional area, tallying the failure types within each. */
+  groupFailures(runs: Run[]): FailureGroup[] {
+    const groups: Record<string, { count: number; types: Record<string, number> }> = {};
+    runs.forEach(run => {
+      (run.failedTests || []).forEach(test => {
+        const { area, type } = this.classifyFailure(test);
+        const g = (groups[area] ||= { count: 0, types: {} });
+        g.count += 1;
+        if (type) g.types[type] = (g.types[type] || 0) + 1;
+      });
+    });
+    return Object.entries(groups)
+      .map(([area, g]) => {
+        const types = Object.entries(g.types)
+          .map(([label, count]) => ({ label, count }))
+          .sort((a, b) => b.count - a.count);
+        return { area, count: g.count, topType: types[0]?.label || null, types };
+      })
+      .sort((a, b) => b.count - a.count);
   },
 
   moduleName(test: FailedTest = {}): string {
@@ -94,7 +144,9 @@ export const AnalyticsModule = {
     const previousAvgFailures = Utils.avg(windows.previous.map(r => r.failed || 0));
     const currentFlakyShare = Utils.ratio(windows.current.filter(r => (r.flaky || 0) > 0).length, windows.current.length);
     const previousFlakyShare = Utils.ratio(windows.previous.filter(r => (r.flaky || 0) > 0).length, windows.previous.length);
-    const categoryCounts = this.countFailuresBy(runs, test => this.classifyFailure(test));
+    const failureGroups = this.groupFailures(runs);
+    // Keep categoryCounts (area + count) for the existing "Failure Driver" consumers.
+    const categoryCounts = failureGroups.map(g => ({ label: g.area, count: g.count }));
     const moduleCounts = this.countFailuresBy(runs, test => this.moduleName(test));
     const topCategory = categoryCounts[0] || null;
     const topModule = moduleCounts[0] || null;
@@ -120,6 +172,7 @@ export const AnalyticsModule = {
       failureDelta: Utils.delta(currentAvgFailures, previousAvgFailures),
       flakyDelta: Utils.delta(currentFlakyShare, previousFlakyShare),
       categoryCounts,
+      failureGroups,
       moduleCounts,
       topCategory,
       topModule,
