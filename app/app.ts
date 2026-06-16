@@ -59,6 +59,8 @@ export const App = {
     this.bindClick(document.querySelector('.header-right .btn[title="Refresh"]'), () => this.refresh());
     this.bindClick(document.getElementById('report-overall-btn'), () => ReportModule.downloadOverall());
     this.bindClick(document.getElementById('report-last-run-btn'), () => ReportModule.downloadLastRun());
+    this.bindClick(document.getElementById('report-sprint-overall-btn'), () => ReportModule.downloadOverall('report-sprint-overall-btn'));
+    this.bindClick(document.getElementById('report-sprint-last-run-btn'), () => ReportModule.downloadLastRun('report-sprint-last-run-btn'));
     this.bindClick(document.getElementById('report-build-btn'), () => BuildReportModule.build());
     this.bindReportControls();
 
@@ -112,6 +114,9 @@ export const App = {
         const name = tab.dataset.reportTab || '';
         document.querySelectorAll<HTMLElement>('.report-tab').forEach(t => t.classList.toggle('active', t === tab));
         document.querySelectorAll<HTMLElement>('.report-panel').forEach(p => p.classList.toggle('active', p.dataset.reportPanel === name));
+        // The Sprint tab scopes reports by the date/sprint controls; Overall uses all runs.
+        ReportModule.scopeMode = name === 'sprint' ? 'sprint' : 'overall';
+        ReportModule.renderScopeNote();
       });
     });
 

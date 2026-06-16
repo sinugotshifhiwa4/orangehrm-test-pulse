@@ -8,14 +8,31 @@
       </div>
       <div class="report-tabs" id="report-tabs" role="tablist">
         <button class="report-tab active" data-report-tab="overall" role="tab" type="button">Overall</button>
+        <button class="report-tab" data-report-tab="sprint" role="tab" type="button">Sprint</button>
         <button class="report-tab" data-report-tab="build" role="tab" type="button">Build Report</button>
       </div>
     </div>
 
     <div class="report-scope" id="report-scope-summary"></div>
 
-    <!-- Overall tab -->
+    <!-- Overall tab — full dashboard-filtered history -->
     <div class="report-panel active" data-report-panel="overall">
+      <div class="reports-grid">
+        <div class="report-card">
+          <div class="section-title"><span class="section-title-dot"></span>Overall Automation Report</div>
+          <div class="report-copy">Creates a shareable PDF of automation run health, trends, outcomes, and the latest run summary across all runs in the dashboard.</div>
+          <button class="btn btn-primary report-btn" id="report-overall-btn" type="button">Download Overall PDF</button>
+        </div>
+        <div class="report-card">
+          <div class="section-title"><span class="section-title-dot"></span>Last Run Approval Report</div>
+          <div class="report-copy">Creates a focused approval pack for the latest run with status, pass rate, failures, flaky signals, and release recommendation.</div>
+          <button class="btn btn-primary report-btn" id="report-last-run-btn" type="button">Download Last Run PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sprint tab — scoped to a date range / sprint -->
+    <div class="report-panel" data-report-panel="sprint">
       <div class="report-controls">
         <div class="report-control">
           <label class="report-control-label" for="report-date-from">Date from</label>
@@ -31,18 +48,19 @@
         </div>
         <button class="btn report-control-reset" id="report-scope-reset" type="button">Reset</button>
       </div>
+      <div class="report-scope-hint">Also respects the dashboard header filters (branch, env, tags, project). Leave dates blank to cover all history.</div>
       <div class="report-scope-note" id="report-scope-note"></div>
 
       <div class="reports-grid">
         <div class="report-card">
-          <div class="section-title"><span class="section-title-dot"></span>Overall Automation Report</div>
-          <div class="report-copy">Creates a shareable PDF of automation run health, trends, outcomes, and the latest run summary for the selected date scope and sprint.</div>
-          <button class="btn btn-primary report-btn" id="report-overall-btn" type="button">Download Overall PDF</button>
+          <div class="section-title"><span class="section-title-dot"></span>Sprint Automation Report</div>
+          <div class="report-copy">Same automation pack as Overall, narrowed to the date range, sprint and header filters selected above.</div>
+          <button class="btn btn-primary report-btn" id="report-sprint-overall-btn" type="button">Download Sprint PDF</button>
         </div>
         <div class="report-card">
           <div class="section-title"><span class="section-title-dot"></span>Last Run Approval Report</div>
-          <div class="report-copy">Creates a focused approval pack for the latest run in scope with status, pass rate, failures, flaky signals, and release recommendation.</div>
-          <button class="btn btn-primary report-btn" id="report-last-run-btn" type="button">Download Last Run PDF</button>
+          <div class="report-copy">Approval pack for the latest run within the selected sprint scope — status, pass rate, failures, flaky signals, and recommendation.</div>
+          <button class="btn btn-primary report-btn" id="report-sprint-last-run-btn" type="button">Download Last Run PDF</button>
         </div>
       </div>
     </div>
