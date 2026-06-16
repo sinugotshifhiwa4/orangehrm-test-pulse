@@ -1,0 +1,102 @@
+<!-- ── Framework (about the source automation repo) ── -->
+<div id="page-framework" class="page fade-in">
+  <div class="fw-shell">
+
+    <!-- Intro -->
+    <div class="fw-hero">
+      <div class="fw-hero-main">
+        <div class="section-title"><span class="section-title-dot"></span>Test Automation Framework</div>
+        <div class="section-sub">The repository that runs the tests and feeds every number on this dashboard.</div>
+        <p class="fw-hero-copy">
+          A Playwright + TypeScript end-to-end automation framework for OrangeHRM, built around reusable
+          page objects, a layered fixture architecture, stage-based environment resolution, and CI-ready
+          execution. Each CI run publishes its results, which Test Pulse reads and visualises.
+        </p>
+        <div class="fw-hero-actions">
+          <a class="btn btn-primary" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework" target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38l-.01-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+            View repository
+          </a>
+          <a class="btn" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Read the docs</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data flow -->
+    <div class="fw-block">
+      <div class="section-title"><span class="section-title-dot"></span>How the data reaches this dashboard</div>
+      <div class="fw-flow">
+        <div class="fw-flow-step"><span class="fw-flow-num">1</span><div><div class="fw-flow-title">Framework run</div><div class="fw-flow-sub">Playwright executes the tagged UI suites in CI.</div></div></div>
+        <div class="fw-flow-arrow">→</div>
+        <div class="fw-flow-step"><span class="fw-flow-num">2</span><div><div class="fw-flow-title">Reports generated</div><div class="fw-flow-sub">Playwright HTML + Ortoni report, plus a rolling results JSON.</div></div></div>
+        <div class="fw-flow-arrow">→</div>
+        <div class="fw-flow-step"><span class="fw-flow-num">3</span><div><div class="fw-flow-title">Published to Cloudflare R2</div><div class="fw-flow-sub">Artefacts uploaded to public object storage.</div></div></div>
+        <div class="fw-flow-arrow">→</div>
+        <div class="fw-flow-step"><span class="fw-flow-num">4</span><div><div class="fw-flow-title">Test Pulse</div><div class="fw-flow-sub">This dashboard fetches the JSON and renders it.</div></div></div>
+      </div>
+    </div>
+
+    <div class="fw-grid">
+      <!-- Tech stack -->
+      <div class="fw-block">
+        <div class="section-title"><span class="section-title-dot"></span>Tech stack</div>
+        <div class="fw-chips">
+          <span class="fw-chip">Playwright</span>
+          <span class="fw-chip">TypeScript</span>
+          <span class="fw-chip">Winston</span>
+          <span class="fw-chip">Luxon</span>
+          <span class="fw-chip">Faker</span>
+          <span class="fw-chip">dotenv</span>
+          <span class="fw-chip">cross-env</span>
+          <span class="fw-chip">ESLint</span>
+          <span class="fw-chip">Prettier</span>
+          <span class="fw-chip">Husky</span>
+          <span class="fw-chip">lint-staged</span>
+          <span class="fw-chip">Ortoni Report</span>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="fw-block">
+        <div class="section-title"><span class="section-title-dot"></span>Key features</div>
+        <ul class="fw-list">
+          <li>Layered fixture architecture (base · UI · API)</li>
+          <li>Page Object Model for maintainable selectors</li>
+          <li>Stage-based environment resolution (QA · UAT · preprod)</li>
+          <li>Tag-based test filtering &amp; worker parallelisation</li>
+          <li>Authentication setup &amp; login orchestration</li>
+          <li>Structured logging with Winston</li>
+          <li>Pre-commit quality gates via Husky + lint-staged</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="fw-block">
+      <div class="section-title"><span class="section-title-dot"></span>Repository structure</div>
+      <pre class="fw-tree"><code>src/        Framework core — configuration, layers, utilities
+fixtures/   Test fixtures, organised by layer
+tests/      Test suites by layer (ui · api · db)
+scripts/    Test execution scripts
+envs/       Environment configuration files
+docs/       Framework documentation</code></pre>
+    </div>
+
+    <!-- Docs -->
+    <div class="fw-block">
+      <div class="section-title"><span class="section-title-dot"></span>Documentation</div>
+      <div class="section-sub">Eight guides covering setup through CI workflows — open any on GitHub.</div>
+      <div class="fw-docs">
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Skills</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Setup</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Rules</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Layer UI</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Utils</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Testing</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">CI</a>
+        <a class="fw-doc" href="https://github.com/sinugotshifhiwa4/orangehrm-ui-automation-framework/tree/main/docs" target="_blank" rel="noopener">Workflows</a>
+      </div>
+    </div>
+
+  </div>
+</div>

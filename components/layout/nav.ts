@@ -10,6 +10,7 @@ const PAGE_TITLES: Record<string, string> = {
   breakdown: 'Visuals',
   runs:      'Run History',
   reports:   'Reports',
+  framework: 'Framework',
 };
 
 export const NavModule = {
