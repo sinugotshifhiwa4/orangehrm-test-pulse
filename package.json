@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "template:build": "node scripts/build-template.mjs",
+    "template:sprint": "node scripts/sprint-template.mjs"
   },
   "dependencies": {
     "chart.js": "^4.4.0",

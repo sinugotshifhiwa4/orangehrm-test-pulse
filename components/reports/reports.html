@@ -48,19 +48,41 @@
         </div>
         <button class="btn report-control-reset" id="report-scope-reset" type="button">Reset</button>
       </div>
-      <div class="report-scope-hint">Also respects the dashboard header filters (branch, env, tags, project). Leave dates blank to cover all history.</div>
+      <div class="report-scope-hint">The sprint report uses only the selected date range — dashboard header filters and the date-range pill are ignored. Leave dates blank to cover all history.</div>
       <div class="report-scope-note" id="report-scope-note"></div>
 
-      <div class="reports-grid">
+      <div class="reports-grid reports-grid-single">
         <div class="report-card">
-          <div class="section-title"><span class="section-title-dot"></span>Sprint Automation Report</div>
-          <div class="report-copy">Same automation pack as Overall, narrowed to the date range, sprint and header filters selected above.</div>
-          <button class="btn btn-primary report-btn" id="report-sprint-overall-btn" type="button">Download Sprint PDF</button>
-        </div>
-        <div class="report-card">
-          <div class="section-title"><span class="section-title-dot"></span>Last Run Approval Report</div>
-          <div class="report-copy">Approval pack for the latest run within the selected sprint scope — status, pass rate, failures, flaky signals, and recommendation.</div>
-          <button class="btn btn-primary report-btn" id="report-sprint-last-run-btn" type="button">Download Last Run PDF</button>
+          <div class="section-title"><span class="section-title-dot"></span>Sprint-Based Report</div>
+          <div class="report-copy">A sprint-level PDF built only from runs inside the sprint window. Set the dates and sprint name above, add the details below, then generate.</div>
+
+          <div class="build-form">
+            <div class="report-control">
+              <label class="report-control-label" for="sprint-prepared-by">Prepared by</label>
+              <input type="text" id="sprint-prepared-by" class="report-input" placeholder="Automation Team" />
+            </div>
+            <div class="report-control">
+              <label class="report-control-label" for="sprint-audience">Audience</label>
+              <input type="text" id="sprint-audience" class="report-input" placeholder="Stakeholders" />
+            </div>
+          </div>
+
+          <div class="report-scope-hint">Delivery tables (page 3) — one row per line, columns separated by <code>|</code>. Leave blank for empty rows.</div>
+
+          <div class="report-control">
+            <label class="report-control-label" for="sprint-completed">Completed work · Item | Outcome / Value | Reference</label>
+            <textarea id="sprint-completed" class="report-input" rows="4" placeholder="New Login Automation | Faster regression coverage | JIRA-1234"></textarea>
+          </div>
+          <div class="report-control">
+            <label class="report-control-label" for="sprint-wip">Work in progress &amp; blockers · Workstream | Status | Owner | Next action / blocker</label>
+            <textarea id="sprint-wip" class="report-input" rows="4" placeholder="Payroll API tests | Blocked | A. Naidoo | Waiting on staging data"></textarea>
+          </div>
+          <div class="report-control">
+            <label class="report-control-label" for="sprint-goals">Sprint goals &amp; achievements · Area | Details</label>
+            <textarea id="sprint-goals" class="report-input" rows="4" placeholder="Quality | Raised suite pass rate above 95%"></textarea>
+          </div>
+
+          <button class="btn btn-primary report-btn" id="report-sprint-pdf-btn" type="button">Generate Sprint Report</button>
         </div>
       </div>
     </div>

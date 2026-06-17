@@ -438,10 +438,15 @@ export const BuildReportModule = {
   },
 
   async build(): Promise<void> {
-    await ReportModule.runWithButton('report-build-btn', async () => {
-      const runs = State.filteredRuns;
-      if (!runs.length) throw new Error('No runs in scope to build a report');
+    // Guard up-front so the reason reaches the user — runWithButton's catch
+    // otherwise replaces it with a generic "please try again" alert.
+    const runs = State.filteredRuns;
+    if (!runs.length) {
+      ReportModule.toast('No runs in scope to build a build report. Adjust the dashboard filters and try again.', 'error');
+      return;
+    }
 
+    await ReportModule.runWithButton('report-build-btn', async () => {
       const map = this.buildMap(runs);
       // Render charts first (needs a live DOM), then patch the template.
       const charts = await this.renderCharts(runs);

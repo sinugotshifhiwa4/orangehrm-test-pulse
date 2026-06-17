@@ -23,6 +23,7 @@ import { ExportModule } from '../components/history/export-csv';
 import { ExportImageModule } from '../components/reports/export-image';
 import { ReportModule } from '../components/reports/report';
 import { BuildReportModule } from '../components/reports/build-report';
+import { SprintReportModule } from '../components/reports/sprint-report';
 
 export const App = {
   bindClick(el: Element | null, handler: (e: Event) => void): void {
@@ -59,9 +60,8 @@ export const App = {
     this.bindClick(document.querySelector('.header-right .btn[title="Refresh"]'), () => this.refresh());
     this.bindClick(document.getElementById('report-overall-btn'), () => ReportModule.downloadOverall());
     this.bindClick(document.getElementById('report-last-run-btn'), () => ReportModule.downloadLastRun());
-    this.bindClick(document.getElementById('report-sprint-overall-btn'), () => ReportModule.downloadOverall('report-sprint-overall-btn'));
-    this.bindClick(document.getElementById('report-sprint-last-run-btn'), () => ReportModule.downloadLastRun('report-sprint-last-run-btn'));
     this.bindClick(document.getElementById('report-build-btn'), () => BuildReportModule.build());
+    this.bindClick(document.getElementById('report-sprint-pdf-btn'), () => SprintReportModule.build());
     this.bindReportControls();
 
     document.querySelectorAll<HTMLElement>('.export-trigger').forEach(trigger => {
