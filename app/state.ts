@@ -18,6 +18,8 @@ export const State: AppState = {
   passThreshold: 100,
   sort: { col: 'formattedDate', dir: 'desc' },
   tableSearch: '',
+  tablePage: 1,
+  tablePageSize: 20,
   charts: {},
   refreshTimer: null,
   countdown: 60,

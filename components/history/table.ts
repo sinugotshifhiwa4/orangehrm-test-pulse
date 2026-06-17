@@ -13,6 +13,20 @@ export const TableModule = {
     this.render();
   },
 
+  /** Update the "showing X–Y of N" label and enable/disable the pager buttons.
+      With a single page (e.g. fewer rows than the page size) both buttons are
+      disabled and read as greyed out. */
+  renderPager(total: number, start: number, end: number, pageCount: number): void {
+    const ind = document.getElementById('page-indicator');
+    if (ind) ind.textContent = total === 0 ? 'No runs' : `Showing ${start + 1}–${Math.min(end, total)} of ${total}`;
+    const prev = document.getElementById('page-prev') as HTMLButtonElement | null;
+    const next = document.getElementById('page-next') as HTMLButtonElement | null;
+    if (prev) prev.disabled = State.tablePage <= 1;
+    if (next) next.disabled = State.tablePage >= pageCount;
+    const sel = document.getElementById('page-size-select') as HTMLSelectElement | null;
+    if (sel && sel.value !== String(State.tablePageSize)) sel.value = String(State.tablePageSize);
+  },
+
   render(): void {
     const avgDur = Utils.avg(State.filteredRuns.filter(r => r.durationMin != null && r.durationMin > 0).map(r => r.durationMin as number));
     const outlier = avgDur * 1.5;
@@ -25,12 +39,20 @@ export const TableModule = {
       if (typeof bv === 'string') bv = bv.toLowerCase();
       return (av as number) < (bv as number) ? (dir === 'asc' ? -1 : 1) : (av as number) > (bv as number) ? (dir === 'asc' ? 1 : -1) : 0;
     });
-    const countEl = document.getElementById('table-count');
-    if (countEl) countEl.textContent = `${rows.length} runs`;
+    // Pagination: sort/filter run across the full set above, then slice the page.
+    const total = rows.length;
+    const size = State.tablePageSize; // 0 = show all
+    const pageCount = size > 0 ? Math.max(1, Math.ceil(total / size)) : 1;
+    State.tablePage = Math.min(Math.max(1, State.tablePage), pageCount);
+    const start = size > 0 ? (State.tablePage - 1) * size : 0;
+    const end = size > 0 ? start + size : total;
+    const pageRows = rows.slice(start, end);
+    this.renderPager(total, start, end, pageCount);
+
     const rClass = (r: Run) => (r.passRate ?? 0) >= State.passThreshold ? 'high' : (r.passRate ?? 0) >= 70 ? 'mid' : 'low';
     const tbody = document.getElementById('runs-tbody');
     if (!tbody) return;
-    tbody.innerHTML = rows.map(r => {
+    tbody.innerHTML = pageRows.map(r => {
       const sel = State.compareIds.has(r.runNumber as number);
       const expanded = State.expandedRuns.has(r.runNumber as number);
       const isOutlier = avgDur > 0 && r.durationMin != null && r.durationMin > outlier;

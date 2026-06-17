@@ -3,9 +3,17 @@
   <div class="table-card">
     <div class="table-toolbar">
       <div class="section-title"><span class="section-title-dot"></span>Run History</div>
-      <div style="display:flex;gap:6px;align-items:center">
+      <div class="table-toolbar-controls">
         <input type="text" class="table-search" id="table-search" placeholder="Search runs…" />
-        <span class="table-count" id="table-count"></span>
+        <div class="rows-per-page">
+          <label class="pager-label" for="page-size-select">Rows</label>
+          <select id="page-size-select" class="page-size-select">
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+            <option value="0">All</option>
+          </select>
+        </div>
         <div class="dropdown-wrap export-wrap" id="export-dd-rh">
           <button class="btn export-trigger" type="button">
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M5 7l3 3 3-3M2.5 13h11"/></svg>
@@ -46,6 +54,13 @@
         </thead>
         <tbody id="runs-tbody"></tbody>
       </table>
+    </div>
+    <div class="table-pager">
+      <span class="page-indicator" id="page-indicator"></span>
+      <div class="pager-right">
+        <button class="btn pager-btn" id="page-prev" type="button" aria-label="Previous page">‹ Prev</button>
+        <button class="btn pager-btn" id="page-next" type="button" aria-label="Next page">Next ›</button>
+      </div>
     </div>
     <div class="cmp-bar hidden" id="compare-bar">
       <span><span class="hl" id="cmp-count">0</span> selected</span>

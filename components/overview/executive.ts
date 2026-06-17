@@ -31,7 +31,7 @@ export const ExecutiveModule = {
     // Shared report vocabulary so the Overview card and the PDF reports read the
     // same: Excellent (>=90) / Good (>=70) / Unstable (<70).
     const health = summary.runHealth;
-    const healthTone: RunSummary['decisionTone'] = health >= 90 ? 'good' : health >= 70 ? 'warn' : 'bad';
+    const healthTone: RunSummary['decisionTone'] = ReportLabels.rateBand(health);
 
     const cards: { label: string; tone: RunSummary['decisionTone']; value: string; body: string }[] = [
       {
