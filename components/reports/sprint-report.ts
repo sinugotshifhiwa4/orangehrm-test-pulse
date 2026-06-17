@@ -39,10 +39,37 @@ const TREND_SLOTS: Slot[] = [
   { x: MX, yTop: 628, w: FULL_W, h: 126 },
 ];
 
-// Row counts per page-3 table — keep in step with scripts/sprint-template.mjs.
-const T1_ROWS = 5; // Completed Work
-const T2_ROWS = 4; // Work In Progress & Blockers
-const T3_ROWS = 6; // Sprint Goals & Achievements
+// Page-3 delivery tables. `max` MUST match the fixed row slots in
+// scripts/sprint-template.mjs; `tokens` are the per-column placeholder prefixes.
+interface ColSpec { label: string; token: string; placeholder?: string; type?: 'text' | 'select'; options?: string[]; }
+interface TableSpec { id: string; title: string; grid: string; max: number; cols: ColSpec[]; }
+
+const TABLE_SPECS: TableSpec[] = [
+  {
+    id: 't1', title: 'Completed Work', max: 5, grid: '1.2fr 1.6fr 1fr 26px',
+    cols: [
+      { label: 'Completed Item', token: 't1_item', placeholder: 'New Login Automation' },
+      { label: 'Outcome / Value Delivered', token: 't1_out', placeholder: 'Faster regression coverage' },
+      { label: 'Reference', token: 't1_ref', placeholder: 'JIRA-1234' },
+    ],
+  },
+  {
+    id: 't2', title: 'Work In Progress & Blockers', max: 4, grid: '1.2fr 1fr 1fr 1.6fr 26px',
+    cols: [
+      { label: 'Workstream', token: 't2_ws', placeholder: 'Payroll API tests' },
+      { label: 'Current Status', token: 't2_status', type: 'select', options: ['', 'In Progress', 'Blocked'] },
+      { label: 'Owner', token: 't2_owner', placeholder: 'A. Naidoo' },
+      { label: 'Next Action / Blocker', token: 't2_next', placeholder: 'Waiting on staging data' },
+    ],
+  },
+  {
+    id: 't3', title: 'Sprint Goals & Achievements', max: 6, grid: '1fr 2.4fr 26px',
+    cols: [
+      { label: 'Area', token: 't3_area', placeholder: 'Quality' },
+      { label: 'Details', token: 't3_detail', placeholder: 'Raised suite pass rate above 95%' },
+    ],
+  },
+];
 
 export const SprintReportModule = {
   field(id: string): string {
@@ -87,16 +114,67 @@ export const SprintReportModule = {
     return this.field('report-sprint') || (this.sprintNumber() ? `Sprint ${this.sprintNumber()}` : 'Sprint');
   },
 
-  /** Parse a delivery-table textarea: one row per line, columns split on `|`. */
-  parseRows(id: string, cols: number, maxRows: number): string[][] {
-    const raw = (document.getElementById(id) as HTMLTextAreaElement | null)?.value || '';
-    const rows = raw.split('\n').map(l => l.trim()).filter(Boolean).slice(0, maxRows)
-      .map(line => {
-        const parts = line.split('|').map(s => s.trim());
-        return Array.from({ length: cols }, (_, i) => parts[i] || '');
-      });
-    while (rows.length < maxRows) rows.push(Array<string>(cols).fill(''));
-    return rows;
+  /* ── Page-3 delivery table editors ────────────────────────────────────────
+     A small structured row editor per table (one input/select per column, with
+     Add row / × remove), replacing the old pipe-delimited textareas. */
+
+  /** Build the three editors into #sprint-tables. Idempotent. */
+  mountTables(): void {
+    const host = document.getElementById('sprint-tables');
+    if (!host || host.dataset.mounted === '1') return;
+    host.dataset.mounted = '1';
+    host.innerHTML = TABLE_SPECS.map(spec => `
+      <div class="ste" data-table="${spec.id}" style="--ste-grid:${spec.grid}">
+        <div class="ste-title">${Utils.escape(spec.title)}</div>
+        <div class="ste-rows" id="ste-rows-${spec.id}">
+          <div class="ste-row ste-head">${spec.cols.map(c => `<span>${Utils.escape(c.label)}</span>`).join('')}<span></span></div>
+        </div>
+        <button type="button" class="btn ste-add" data-add="${spec.id}">+ Add row</button>
+      </div>`).join('');
+    TABLE_SPECS.forEach(spec => {
+      this.addRow(spec.id);
+      host.querySelector(`[data-add="${spec.id}"]`)?.addEventListener('click', () => this.addRow(spec.id));
+    });
+  },
+
+  /** Append one empty input row to a table, up to its max. */
+  addRow(tableId: string): void {
+    const spec = TABLE_SPECS.find(s => s.id === tableId);
+    const rows = document.getElementById(`ste-rows-${tableId}`);
+    if (!spec || !rows) return;
+    if (rows.querySelectorAll('.ste-row:not(.ste-head)').length >= spec.max) return;
+    const row = document.createElement('div');
+    row.className = 'ste-row';
+    row.innerHTML = spec.cols.map(c =>
+      c.type === 'select'
+        ? `<select class="report-input ste-input">${(c.options || []).map(o => `<option value="${Utils.escape(o)}">${o ? Utils.escape(o) : 'Select…'}</option>`).join('')}</select>`
+        : `<input type="text" class="report-input ste-input" placeholder="${Utils.escape(c.placeholder || '')}" />`,
+    ).join('') + `<button type="button" class="ste-remove" aria-label="Remove row" title="Remove row">×</button>`;
+    rows.appendChild(row);
+    row.querySelector('.ste-remove')?.addEventListener('click', () => { row.remove(); this.refreshAddState(tableId); });
+    this.refreshAddState(tableId);
+  },
+
+  /** Disable a table's Add button once it has hit its row cap. */
+  refreshAddState(tableId: string): void {
+    const spec = TABLE_SPECS.find(s => s.id === tableId);
+    const rows = document.getElementById(`ste-rows-${tableId}`);
+    const add = document.querySelector<HTMLButtonElement>(`[data-add="${tableId}"]`);
+    if (!spec || !rows || !add) return;
+    add.disabled = rows.querySelectorAll('.ste-row:not(.ste-head)').length >= spec.max;
+  },
+
+  /** Read a table's rows as ordered cell values, padded/truncated to its max so
+      every fixed template slot gets a value (blank slots clear the placeholder). */
+  readRows(spec: TableSpec): string[][] {
+    const rows = document.getElementById(`ste-rows-${spec.id}`);
+    const got = rows
+      ? [...rows.querySelectorAll('.ste-row:not(.ste-head)')].map(row =>
+          [...row.querySelectorAll<HTMLInputElement | HTMLSelectElement>('.ste-input')].map(el => el.value.trim()))
+      : [];
+    const out = got.slice(0, spec.max).map(r => spec.cols.map((_, i) => r[i] || ''));
+    while (out.length < spec.max) out.push(spec.cols.map(() => ''));
+    return out;
   },
 
   /** Map every template placeholder to its live value — the single source of truth
@@ -187,15 +265,11 @@ export const SprintReportModule = {
       suiteRiskLevel: suiteRisk,
     };
 
-    // Page 3 — delivery tables (user-entered narrative content).
-    this.parseRows('sprint-completed', 3, T1_ROWS).forEach((r, i) => {
-      map[`t1_item_${i + 1}`] = r[0]; map[`t1_out_${i + 1}`] = r[1]; map[`t1_ref_${i + 1}`] = r[2];
-    });
-    this.parseRows('sprint-wip', 4, T2_ROWS).forEach((r, i) => {
-      map[`t2_ws_${i + 1}`] = r[0]; map[`t2_status_${i + 1}`] = r[1]; map[`t2_owner_${i + 1}`] = r[2]; map[`t2_next_${i + 1}`] = r[3];
-    });
-    this.parseRows('sprint-goals', 2, T3_ROWS).forEach((r, i) => {
-      map[`t3_area_${i + 1}`] = r[0]; map[`t3_detail_${i + 1}`] = r[1];
+    // Page 3 — delivery tables (user-entered narrative content from the editors).
+    TABLE_SPECS.forEach(spec => {
+      this.readRows(spec).forEach((cells, i) => {
+        spec.cols.forEach((c, ci) => { map[`${c.token}_${i + 1}`] = cells[ci]; });
+      });
     });
 
     return map;

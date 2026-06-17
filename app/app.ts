@@ -147,6 +147,9 @@ export const App = {
       const el = document.getElementById(id) as HTMLInputElement | null;
       el?.addEventListener('input', () => { el.dataset.touched = el.value.trim() ? '1' : ''; });
     });
+
+    // Build the Sprint report's page-3 delivery-table editors.
+    SprintReportModule.mountTables();
   },
 
   SIDEBAR_COLLAPSED_KEY: 'qa-sidebar-collapsed',

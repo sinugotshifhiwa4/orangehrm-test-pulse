@@ -78,20 +78,9 @@
             </div>
           </div>
 
-          <div class="report-scope-hint">Delivery tables (page 3) — one row per line, columns separated by <code>|</code>. Leave blank for empty rows.</div>
+          <div class="report-scope-hint">Sprint delivery tables (page 3) — fill the fields and use <strong>+ Add row</strong> / <strong>×</strong> to manage rows. Empty rows are skipped.</div>
 
-          <div class="report-control">
-            <label class="report-control-label" for="sprint-completed">Completed work · Item | Outcome / Value | Reference</label>
-            <textarea id="sprint-completed" class="report-input" rows="4" placeholder="New Login Automation | Faster regression coverage | JIRA-1234"></textarea>
-          </div>
-          <div class="report-control">
-            <label class="report-control-label" for="sprint-wip">Work in progress &amp; blockers · Workstream | Status | Owner | Next action / blocker</label>
-            <textarea id="sprint-wip" class="report-input" rows="4" placeholder="Payroll API tests | Blocked | A. Naidoo | Waiting on staging data"></textarea>
-          </div>
-          <div class="report-control">
-            <label class="report-control-label" for="sprint-goals">Sprint goals &amp; achievements · Area | Details</label>
-            <textarea id="sprint-goals" class="report-input" rows="4" placeholder="Quality | Raised suite pass rate above 95%"></textarea>
-          </div>
+          <div class="sprint-tables" id="sprint-tables"></div>
 
           <button class="btn btn-primary report-btn" id="report-sprint-pdf-btn" type="button">Generate Sprint Report</button>
         </div>
