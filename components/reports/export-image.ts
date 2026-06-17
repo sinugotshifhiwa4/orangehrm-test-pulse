@@ -97,7 +97,11 @@ export const ExportImageModule = {
   },
 
   enhance(): void {
-    document.querySelectorAll<HTMLElement>('.chart-card, .chart-card-full, .breakdown-card, .failing-card, .table-card').forEach((card, index) => {
+    // PNG export is for visual/chart cards only. Tables (.table-card — Recent Runs,
+    // Run History) and text lists (.failing-card — Top Failing Tests / Modules,
+    // Failure Categories) are better served by the CSV/Excel data export, so they
+    // are intentionally excluded.
+    document.querySelectorAll<HTMLElement>('.chart-card, .chart-card-full, .breakdown-card').forEach((card, index) => {
       const title = card.querySelector('.section-title')?.textContent?.trim() || `section-${index + 1}`;
       const filename = this.safeName(title);
       this.attachButton(card, filename, title);

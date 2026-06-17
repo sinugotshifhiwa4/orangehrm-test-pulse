@@ -144,11 +144,50 @@
 }
 .build-form .report-input { width: 100%; min-width: 0; }
 
-/* Delivery-table inputs on the Sprint-Based Report card span the card and grow
-   only vertically. They sit in plain .report-control blocks (not .build-form). */
-.report-card > .report-control { margin-top: 12px; }
-.report-card > .report-control > .report-input { width: 100%; min-width: 0; }
-textarea.report-input { resize: vertical; line-height: 1.5; }
+/* ── Sprint delivery-table row editors (page-3 tables) ── */
+.sprint-tables { display: flex; flex-direction: column; gap: 18px; margin-top: 16px; }
+.ste-title {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-1); margin-bottom: 8px;
+}
+.ste-rows { display: flex; flex-direction: column; gap: 6px; }
+.ste-row {
+  display: grid; grid-template-columns: var(--ste-grid); gap: 6px; align-items: center;
+}
+.ste-row.ste-head {
+  font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--text-3);
+}
+.ste-row.ste-head span { padding: 0 2px; }
+.ste-input { width: 100%; min-width: 0; }
+/* .report-input strips the native select caret (appearance:none) — add one back. */
+select.ste-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237c82a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  background-size: 9px 6px;
+  padding-right: 24px;
+}
+.ste-remove {
+  width: 22px; height: 22px; padding: 0; line-height: 1;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--bg-2); color: var(--text-3);
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  font-size: 14px;
+}
+.ste-remove:hover { color: var(--red); border-color: #f25f5c40; }
+.ste-add {
+  align-self: flex-start; margin-top: 8px;
+  font-size: 11px; padding: 4px 10px;
+}
+.ste-add:disabled { opacity: .4; pointer-events: none; }
+
+@media (max-width: 680px) {
+  /* Stack each row's fields on narrow screens; drop the header labels. */
+  .ste-row { grid-template-columns: 1fr; }
+  .ste-row.ste-head { display: none; }
+  .ste-remove { width: auto; justify-self: end; padding: 0 10px; }
+}
 
 @media (max-width: 680px) {
   .build-form { grid-template-columns: 1fr; }

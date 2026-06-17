@@ -48,12 +48,8 @@
   .last-updated     { display: none; }
   .filter-chips     { display: none; }
   .header-title     { font-size: 13px; }
-  /* Push the action buttons (export, filter, refresh) to the far right end
-     so the export panel drops under them instead of spilling off-screen left. */
+  /* Push the action buttons (filter, refresh) to the far right end. */
   .header-right     { margin-left: auto; }
-  /* Compact the Export button to an icon on the cramped mobile header. */
-  .header-right .export-label { display: none; }
-  .header-right .export-trigger .dd-caret { display: none; }
 
   /* ── Mobile filter button (show only on mobile) ── */
   .mobile-filter-btn { display: flex; }

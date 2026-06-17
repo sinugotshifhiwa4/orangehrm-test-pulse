@@ -3,7 +3,9 @@
    ══════════════════════════════════════════ */
 import type { Run } from '../../app/types';
 
-const COLUMNS: { key: keyof Run; label: string }[] = [
+interface Column { key: keyof Run; label: string; link?: boolean; }
+
+const COLUMNS: Column[] = [
   { key: 'runNumber', label: 'Run #' },
   { key: 'date', label: 'Date' },
   { key: 'branch', label: 'Branch' },
@@ -18,6 +20,9 @@ const COLUMNS: { key: keyof Run; label: string }[] = [
   { key: 'total', label: 'Total' },
   { key: 'durationMin', label: 'Duration (min)' },
   { key: 'status', label: 'Status' },
+  // Links last — URLs are long and would otherwise push the numeric columns off-screen.
+  { key: 'reportUrl', label: 'Report URL', link: true },
+  { key: 'ortoniUrl', label: 'Ortoni URL', link: true },
 ];
 
 const fileName = (ext: string): string => `test-results-${new Date().toISOString().slice(0, 10)}.${ext}`;
@@ -55,7 +60,20 @@ export const ExportModule = {
     // Loaded on demand so the (large) library stays out of the initial bundle.
     const XLSX = await import('xlsx');
     const ws = XLSX.utils.json_to_sheet(runs.map(toRow), { header: COLUMNS.map(c => c.label) });
-    ws['!cols'] = COLUMNS.map(c => ({ wch: Math.max(c.label.length + 2, 12) }));
+    ws['!cols'] = COLUMNS.map(c => ({ wch: c.link ? 44 : Math.max(c.label.length + 2, 12) }));
+
+    // Turn the URL cells into real, clickable hyperlinks (json_to_sheet writes
+    // them as plain text). Data rows start at sheet row 1 (row 0 is the header).
+    COLUMNS.forEach((col, c) => {
+      if (!col.link) return;
+      runs.forEach((r, i) => {
+        const url = r[col.key];
+        if (typeof url !== 'string' || !url) return;
+        const cell = ws[XLSX.utils.encode_cell({ r: i + 1, c })];
+        if (cell) cell.l = { Target: url, Tooltip: col.label };
+      });
+    });
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Test Results');
     XLSX.writeFile(wb, fileName('xlsx'));
