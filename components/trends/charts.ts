@@ -88,6 +88,9 @@ export const ChartModule = {
       },
       options: {
         ...CHART_DEFAULTS, responsive: true,
+        // Line chart with hidden points — index/non-intersect so the tooltip
+        // appears anywhere along the x-axis, not only exactly on a vertex.
+        interaction: { mode: 'index', intersect: false },
         plugins: { ...CHART_DEFAULTS.plugins, tooltip: { ...CHART_DEFAULTS.plugins.tooltip, callbacks: { title: this.ttTitle(s) } } },
         scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, min: 0, max: 100, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: (v: number | string) => v + '%' } } },
       },
@@ -229,6 +232,8 @@ export const ChartModule = {
       },
       options: {
         ...CHART_DEFAULTS, responsive: true,
+        // Match the other line charts: tooltip on hover anywhere along the x-axis.
+        interaction: { mode: 'index', intersect: false },
         scales: { ...CHART_DEFAULTS.scales, y: { ...CHART_DEFAULTS.scales.y, ticks: { ...CHART_DEFAULTS.scales.y.ticks, callback: (v: number | string) => v + 'm' } } },
       },
     } as ChartConfiguration);
