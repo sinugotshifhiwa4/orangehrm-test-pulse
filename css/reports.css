@@ -144,6 +144,12 @@
 }
 .build-form .report-input { width: 100%; min-width: 0; }
 
+/* Delivery-table inputs on the Sprint-Based Report card span the card and grow
+   only vertically. They sit in plain .report-control blocks (not .build-form). */
+.report-card > .report-control { margin-top: 12px; }
+.report-card > .report-control > .report-input { width: 100%; min-width: 0; }
+textarea.report-input { resize: vertical; line-height: 1.5; }
+
 @media (max-width: 680px) {
   .build-form { grid-template-columns: 1fr; }
 }
@@ -186,6 +192,12 @@
   color: var(--green);
 }
 .app-toast-success::before { background: #22d17b22; }
+.app-toast-error {
+  background: var(--red-bg, #f25f5c1a);
+  border-color: #f25f5c40;
+  color: var(--red, #f25f5c);
+}
+.app-toast-error::before { content: '✕'; background: #f25f5c22; }
 
 @media (max-width: 680px) {
   /* Sit above the mobile bottom nav. */
