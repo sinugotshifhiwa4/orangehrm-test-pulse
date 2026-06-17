@@ -243,8 +243,23 @@ export const App = {
         const c = th.dataset.col as string;
         if (State.sort.col === c) State.sort.dir = State.sort.dir === 'asc' ? 'desc' : 'asc';
         else { State.sort.col = c; State.sort.dir = 'asc'; }
+        State.tablePage = 1; // re-sorting changes row order — start from the top
         TableModule.render();
       });
+    });
+
+    // Run History pagination
+    document.getElementById('page-size-select')?.addEventListener('change', e => {
+      State.tablePageSize = Number((e.target as HTMLSelectElement).value);
+      State.tablePage = 1;
+      TableModule.render();
+    });
+    this.bindClick(document.getElementById('page-prev'), () => {
+      if (State.tablePage > 1) { State.tablePage--; TableModule.render(); }
+    });
+    this.bindClick(document.getElementById('page-next'), () => {
+      State.tablePage++; // render() clamps to the last page
+      TableModule.render();
     });
 
     await this.refresh();
@@ -286,6 +301,7 @@ export const App = {
 
   updateUI(): void {
     FilterModule.apply();
+    State.tablePage = 1; // filters/search/refresh changed the result set — reset paging
     this.syncSearchInputs();
     this.updateAdvancedFilterTrigger();
     this.renderFilterChips();

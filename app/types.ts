@@ -92,6 +92,9 @@ export interface AppState {
   passThreshold: number;
   sort: SortState;
   tableSearch: string;
+  /** Run History pagination: current 1-based page and page size (0 = show all). */
+  tablePage: number;
+  tablePageSize: number;
   charts: Record<string, Chart>;
   refreshTimer: ReturnType<typeof setTimeout> | null;
   countdown: number;

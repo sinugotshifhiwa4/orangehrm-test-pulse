@@ -6,8 +6,14 @@ import type { Run } from '../../app/types';
 import { Utils } from '../../app/core/utils';
 import { AnalyticsModule } from '../../app/core/analytics';
 import { NavModule } from '../layout/nav';
+import { ReportLabels, type Band } from '../reports/report-labels';
 
 interface Totals { passed: number; failed: number; flaky: number; skipped: number; total: number; }
+
+// Shared band → presentation maps, so pass-rate colouring stays in step with the
+// centralised HEALTH_BANDS thresholds in report-labels.ts.
+const BAND_COLOR: Record<Band, string> = { good: 'var(--green)', warn: 'var(--yellow)', bad: 'var(--red)' };
+const BAND_RATE_CLASS: Record<Band, string> = { good: 'high', warn: 'mid', bad: 'low' };
 
 const totals = (runs: Run[]): Totals => {
   const passed = Utils.sum(runs.map(r => r.passed || 0));
@@ -19,15 +25,18 @@ const totals = (runs: Run[]): Totals => {
 
 const TREND_TITLE = 'Change vs the earlier half of these runs';
 
-/** Renders a trend chip. Colour follows direction for consistency across every card:
-    up is always green, down is always red. The arrow carries direction, so the
-    magnitude is shown unsigned to avoid a redundant "↓ −3". */
-const trendChip = (delta: number | null, suffix = ''): string => {
+/** Renders a trend chip. The arrow always reflects the actual direction of change,
+    but the colour reflects whether that change is *good*: rising passes are green,
+    while rising failures/flaky/skipped are red. Pass higherIsBetter=false for
+    metrics where an increase is bad. Magnitude is shown unsigned — the arrow
+    already carries direction, avoiding a redundant "↓ −3". */
+const trendChip = (delta: number | null, { suffix = '', higherIsBetter = true }: { suffix?: string; higherIsBetter?: boolean } = {}): string => {
   if (delta == null) return `<span class="kpi-trend flat" title="Not enough history to compare">— no baseline</span>`;
   if (delta === 0) return `<span class="kpi-trend flat" title="${TREND_TITLE}">→ no change</span>`;
   const up = delta > 0;
   const arrow = up ? '↑' : '↓';
-  return `<span class="kpi-trend ${up ? 'up' : 'down'}" title="${TREND_TITLE}">${arrow} ${Math.abs(delta)}${suffix}</span>`;
+  const good = up === higherIsBetter;
+  return `<span class="kpi-trend ${good ? 'up' : 'down'}" title="${TREND_TITLE}">${arrow} ${Math.abs(delta)}${suffix}</span>`;
 };
 
 export const OverviewModule = {
@@ -54,12 +63,12 @@ export const OverviewModule = {
       : null;
 
     const cards = [
-      { label: 'Total Tests', value: String(t.total), color: 'var(--blue)', trend: '' },
+      { label: 'Test Executions', value: String(t.total), color: 'var(--blue)', trend: '' },
       { label: 'Passed', value: String(t.passed), color: 'var(--green)', trend: trendChip(countDelta('passed')) },
-      { label: 'Failed', value: String(t.failed), color: t.failed ? 'var(--red)' : 'var(--green)', trend: trendChip(countDelta('failed')) },
-      { label: 'Flaky', value: String(t.flaky), color: t.flaky ? 'var(--orange)' : 'var(--green)', trend: trendChip(countDelta('flaky')) },
-      { label: 'Skipped', value: String(t.skipped), color: 'var(--text-2)', trend: trendChip(countDelta('skipped')) },
-      { label: 'Success', value: `${Math.round(success)}%`, color: success >= 90 ? 'var(--green)' : success >= 70 ? 'var(--yellow)' : 'var(--red)', trend: trendChip(successDelta, '%') },
+      { label: 'Failed', value: String(t.failed), color: t.failed ? 'var(--red)' : 'var(--green)', trend: trendChip(countDelta('failed'), { higherIsBetter: false }) },
+      { label: 'Flaky', value: String(t.flaky), color: t.flaky ? 'var(--orange)' : 'var(--green)', trend: trendChip(countDelta('flaky'), { higherIsBetter: false }) },
+      { label: 'Skipped', value: String(t.skipped), color: 'var(--text-2)', trend: trendChip(countDelta('skipped'), { higherIsBetter: false }) },
+      { label: 'Success', value: `${Math.round(success)}%`, color: BAND_COLOR[ReportLabels.rateBand(success)], trend: trendChip(successDelta, { suffix: '%' }) },
     ];
     el.innerHTML = cards.map(c => `
       <div class="kpi-card">
@@ -107,7 +116,7 @@ export const OverviewModule = {
         </thead>
         <tbody>
           ${recent.map(r => {
-            const cls = (r.passRate ?? 0) >= 90 ? 'high' : (r.passRate ?? 0) >= 70 ? 'mid' : 'low';
+            const cls = BAND_RATE_CLASS[ReportLabels.rateBand(r.passRate ?? 0)];
             return `<tr class="${r.status === 'FAIL' ? 'row-fail' : ''}">
               <td class="mono">#${r.runNumber ?? '—'}</td>
               <td class="mono">${Utils.escape(r.branch || '—')}</td>

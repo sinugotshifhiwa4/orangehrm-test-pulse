@@ -51,6 +51,10 @@
   align-items: center;
 }
 .outcome-chart canvas { max-height: 200px; }
+/* Success Trend card is as tall as the Outcome card beside it; centre its chart
+   vertically so it uses the spare height instead of leaving a gap at the bottom. */
+.ov-row-2 > .chart-card { display: flex; flex-direction: column; }
+.ov-row-2 > .chart-card > canvas { margin: auto 0; }
 /* Collapsed sidebar frees width — let the charts grow taller so they scale, not stretch. */
 body.sidebar-collapsed .outcome-chart canvas { max-height: 240px; }
 .outcome-stats { display: flex; flex-direction: column; gap: 8px; }

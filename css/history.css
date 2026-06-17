@@ -24,7 +24,8 @@
 }
 .table-search::placeholder { color: var(--text-3); }
 .table-search:focus { outline: none; border-color: var(--border-md); }
-.table-count { font-size: 10px; color: var(--text-3); font-family: var(--mono); }
+.table-toolbar-controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.rows-per-page { display: flex; align-items: center; gap: 6px; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
 thead th {
@@ -78,6 +79,28 @@ td.mono { font-family: var(--mono); font-size: 10.5px; }
 .mobile-row-details-cell,
 .mobile-row-toggle,
 .mobile-row-details { display: none; }
+
+/* ── Pagination ── */
+.table-pager {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap;
+  padding: 9px 14px; border-top: 1px solid var(--border);
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+}
+.pager-right { display: flex; align-items: center; gap: 8px; }
+.pager-label {
+  font-family: var(--mono); font-size: 10px; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.page-size-select {
+  background: var(--bg-2); border: 1px solid var(--border);
+  color: var(--text-1); font-family: var(--mono); font-size: 11px;
+  padding: 4px 8px; border-radius: var(--r-sm); cursor: pointer;
+}
+.page-size-select:focus { outline: none; border-color: var(--border-md); }
+.page-indicator { color: var(--text-2); }
+.pager-btn { font-size: 11px; padding: 4px 10px; }
+.pager-btn:disabled { opacity: .35; pointer-events: none; cursor: default; }
 
 /* ── Compare checkbox / bar ── */
 .cmp-cb { width: 13px; height: 13px; accent-color: var(--accent); cursor: pointer; }

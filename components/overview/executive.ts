@@ -4,6 +4,7 @@
 import type { Run, RunSummary } from '../../app/types';
 import { Utils } from '../../app/core/utils';
 import { AnalyticsModule } from '../../app/core/analytics';
+import { ReportLabels } from '../reports/report-labels';
 
 const WINDOW_DAYS = 30;
 
@@ -27,15 +28,16 @@ export const ExecutiveModule = {
 
     // Run-health: how healthy the selected runs were. No critical-tag override — the
     // filtered dataset already scopes what counts (e.g. filtering to authenticate).
+    // Shared report vocabulary so the Overview card and the PDF reports read the
+    // same: Excellent (>=90) / Good (>=70) / Unstable (<70).
     const health = summary.runHealth;
-    const healthLabel = health >= 90 ? 'Healthy' : health >= 75 ? 'Stable' : 'At Risk';
-    const healthTone: RunSummary['decisionTone'] = health >= 90 ? 'good' : health >= 75 ? 'warn' : 'bad';
+    const healthTone: RunSummary['decisionTone'] = ReportLabels.rateBand(health);
 
     const cards: { label: string; tone: RunSummary['decisionTone']; value: string; body: string }[] = [
       {
         label: 'Overall Health',
         tone: healthTone,
-        value: `${healthLabel} · ${health}/100`,
+        value: ReportLabels.healthLine(health),
         body: `Weighted pass rate ${Utils.pct(summary.weightedPassRate)} across ${recent.length} run${recent.length === 1 ? '' : 's'} in the last ${WINDOW_DAYS} days.`,
       },
       {

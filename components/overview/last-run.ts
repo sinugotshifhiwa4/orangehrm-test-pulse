@@ -110,7 +110,7 @@ export const LastRunModule = {
         </div>
         <div class="last-run-actions">
           <div class="last-run-approval ${summary.tone}">${summary.label}</div>
-          <button class="btn btn-primary" id="last-run-open-btn" type="button">Review Last Run</button>
+          <button class="btn btn-primary" id="last-run-open-btn" type="button">Review Latest Run</button>
         </div>
       </div>`;
 
