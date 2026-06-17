@@ -27,6 +27,7 @@ import { CHART_DEFAULTS } from '../../app/config';
 import { AnalyticsModule } from '../../app/core/analytics';
 import { ChartModule } from '../trends/charts';
 import { ReportModule } from './report';
+import { ReportLabels } from './report-labels';
 
 /** Deep-restore source values into target, preserving target's object identity
     (the live charts hold references to CHART_DEFAULTS' nested objects). */
@@ -357,8 +358,6 @@ export const BuildReportModule = {
     const summary = AnalyticsModule.summarize(runs);
     const meta = this.meta(latest);
 
-    const passDelta = latest && prev && latest.passRate != null && prev.passRate != null
-      ? +(latest.passRate - prev.passRate).toFixed(1) : null;
     const testsDelta = latest && prev ? (latest.total || 0) - (prev.total || 0) : 0;
     const testsDeltaText = `${testsDelta >= 0 ? '+' : ''}${testsDelta}`;
     const testGrowthPct = prev && (prev.total || 0) > 0 ? Math.round((testsDelta / (prev.total as number)) * 100) : 0;
@@ -376,12 +375,12 @@ export const BuildReportModule = {
     // on Overall Health. Build risk (below) is for this build alone.
     const suiteRisk = (latest?.status === 'FAIL' || summary.criticalFailingRuns > 0) ? 'High'
       : (summary.totalFlaky > 0 || summary.weightedPassRate < 90) ? 'Medium' : 'Low';
-    const qualityTrend = passDelta == null ? 'Stable' : passDelta > 1 ? 'Good' : passDelta < -1 ? 'Unstable' : 'Stable';
+    // Quality for this build, graded on its pass rate (shared report vocabulary).
+    const qualityTrend = ReportLabels.grade(latest?.passRate ?? 0);
     // Two page-4 summary pieces beside the gauge.
     // Overall Health mirrors the Overview "Overall Health" card exactly: the
     // run-health score (NOT the release-gate score) + weighted pass rate context.
     const runHealth = summary.runHealth;
-    const healthLabel = runHealth >= 90 ? 'Healthy' : runHealth >= 75 ? 'Stable' : 'At Risk';
     // Build Release score: a release gate for THIS build's run (the latest run) —
     // distinct from the suite-wide Test Suite score (summary.releaseScore, which is
     // computed across the runs in scope) and the run-health model. It is the run's
@@ -389,8 +388,8 @@ export const BuildReportModule = {
     const buildPass = latest?.passRate ?? 0;
     const buildFlakyDock = latest && latest.total ? Utils.clamp(((latest.flaky || 0) / latest.total) * 100 * 0.5, 0, 16) : 0;
     const buildReleaseScore = Math.round(Utils.clamp(buildPass - buildFlakyDock - (latest?.status === 'FAIL' ? 15 : 0), 0, 100));
-    const releaseReadiness = buildReleaseScore >= 90 ? 'Ready' : buildReleaseScore >= 75 ? 'Caution' : 'Hold';
-    const readinessSummary = releaseReadiness === 'Ready' ? 'Cleared for release.' : releaseReadiness === 'Caution' ? 'Proceed with caution.' : 'Hold for fixes.';
+    const releaseReadiness = ReportLabels.readiness(buildReleaseScore);
+    const readinessSummary = ReportLabels.readinessNote(releaseReadiness);
     // Build risk: this build's own risk, derived from its release score (so a
     // healthy passing build reads Low even when the suite is at risk).
     const buildRisk = buildReleaseScore >= 90 ? 'Low' : buildReleaseScore >= 75 ? 'Medium' : 'High';
@@ -413,7 +412,7 @@ export const BuildReportModule = {
       qualityTrend,
       riskLevel: buildRisk,
       suiteRiskLevel: suiteRisk,
-      overallHealth: `${healthLabel} · ${runHealth}/100`,
+      overallHealth: ReportLabels.healthLine(runHealth),
       healthNote: `Weighted pass rate ${Utils.pct(summary.weightedPassRate)} across ${runs.length} run${runs.length === 1 ? '' : 's'}`,
       runsCount: String(runs.length),
       failingRuns: String(summary.failingRuns),

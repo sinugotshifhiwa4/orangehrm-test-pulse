@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "template:build": "node scripts/build-template.mjs",
-    "template:sprint": "node scripts/sprint-template.mjs"
+    "template:sprint": "node scripts/sprint-template.mjs",
+    "template:overall": "node scripts/overall-template.mjs"
   },
   "dependencies": {
     "chart.js": "^4.4.0",

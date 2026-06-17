@@ -24,6 +24,7 @@ import { ExportImageModule } from '../components/reports/export-image';
 import { ReportModule } from '../components/reports/report';
 import { BuildReportModule } from '../components/reports/build-report';
 import { SprintReportModule } from '../components/reports/sprint-report';
+import { OverallSuiteReportModule } from '../components/reports/overall-suite-report';
 
 export const App = {
   bindClick(el: Element | null, handler: (e: Event) => void): void {
@@ -58,8 +59,7 @@ export const App = {
     this.bindClick(document.querySelector('.mobile-filter-btn'), () => MobileModule.toggleFilterSheet());
     this.bindClick(document.querySelector('#header-filters .threshold-chip'), () => MobileModule.toggleFilterSheet());
     this.bindClick(document.querySelector('.header-right .btn[title="Refresh"]'), () => this.refresh());
-    this.bindClick(document.getElementById('report-overall-btn'), () => ReportModule.downloadOverall());
-    this.bindClick(document.getElementById('report-last-run-btn'), () => ReportModule.downloadLastRun());
+    this.bindClick(document.getElementById('report-overall-suite-btn'), () => OverallSuiteReportModule.build());
     this.bindClick(document.getElementById('report-build-btn'), () => BuildReportModule.build());
     this.bindClick(document.getElementById('report-sprint-pdf-btn'), () => SprintReportModule.build());
     this.bindReportControls();
@@ -142,8 +142,8 @@ export const App = {
       syncScope();
     });
 
-    // Build number/date default to the Overview latest run until the user edits them.
-    ['build-number', 'build-date'].forEach(id => {
+    // Build number/date and the overall report date default until the user edits them.
+    ['build-number', 'build-date', 'overall-report-date'].forEach(id => {
       const el = document.getElementById(id) as HTMLInputElement | null;
       el?.addEventListener('input', () => { el.dataset.touched = el.value.trim() ? '1' : ''; });
     });
@@ -304,6 +304,7 @@ export const App = {
     ReportModule.renderScopeSummary();
     ReportModule.renderScopeNote();
     BuildReportModule.syncDefaults();
+    OverallSuiteReportModule.syncDefaults();
     ExportImageModule.enhance();
   },
 

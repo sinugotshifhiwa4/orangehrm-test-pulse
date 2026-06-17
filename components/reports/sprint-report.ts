@@ -19,6 +19,7 @@ import { Utils } from '../../app/core/utils';
 import { AnalyticsModule } from '../../app/core/analytics';
 import { ReportModule } from './report';
 import { BuildReportModule } from './build-report';
+import { ReportLabels } from './report-labels';
 
 type FillMap = Record<string, string>;
 interface Slot { x: number; yTop: number; w: number; h: number; alignTop?: boolean; }
@@ -130,20 +131,15 @@ export const SprintReportModule = {
     const failShare = runs.length ? (summary.failingRuns / runs.length) * 100 : 0;
     const failDock = Utils.clamp(failShare * 0.3, 0, 20);
     const readinessScore = Math.round(Utils.clamp(summary.weightedPassRate - flakyDock - failDock, 0, 100));
-    const sprintReadiness = readinessScore >= 90 ? 'Ready' : readinessScore >= 75 ? 'Ready with Risks' : 'Not Ready';
-    const readinessSummary = sprintReadiness === 'Ready'
-      ? 'Cleared for release.'
-      : sprintReadiness === 'Ready with Risks' ? 'Proceed with caution.' : 'Hold for fixes.';
-
-    const sprintStatus = sprintReadiness === 'Ready' ? 'On Track' : sprintReadiness === 'Ready with Risks' ? 'At Risk' : 'Off Track';
-    const passDelta = latest && earliest && latest.passRate != null && earliest.passRate != null
-      ? +(latest.passRate - earliest.passRate).toFixed(1) : null;
-    const sprintQuality = passDelta == null ? 'Stable' : passDelta > 1 ? 'Good' : passDelta < -1 ? 'Unstable' : 'Stable';
-    const sprintStability = summary.failingRuns > 0 ? 'Unstable' : summary.totalFlaky > 0 ? 'Variable' : 'Stable';
+    const sprintReadiness = ReportLabels.readiness(readinessScore);
+    const readinessSummary = ReportLabels.readinessNote(sprintReadiness);
 
     // Overall Health mirrors the Overview "Overall Health" card (run-health model).
     const runHealth = summary.runHealth;
-    const healthLabel = runHealth >= 90 ? 'Healthy' : runHealth >= 75 ? 'Stable' : 'At Risk';
+    const sprintStatus = ReportLabels.grade(runHealth);
+    const sprintQuality = ReportLabels.grade(summary.weightedPassRate);
+    const sprintStability = ReportLabels.stability(summary.failingRuns, summary.totalFlaky);
+
     const suiteRisk = (latest?.status === 'FAIL' || summary.criticalFailingRuns > 0) ? 'High'
       : (summary.totalFlaky > 0 || summary.weightedPassRate < 90) ? 'Medium' : 'Low';
 
@@ -183,7 +179,7 @@ export const SprintReportModule = {
       outSkipped: String(outSkipped),
       outSkippedPct: opct(outSkipped),
 
-      overallHealth: `${healthLabel} · ${runHealth}/100`,
+      overallHealth: ReportLabels.healthLine(runHealth),
       healthNote: `Weighted pass rate ${Utils.pct(summary.weightedPassRate)} across ${runs.length} run${runs.length === 1 ? '' : 's'}`,
       failingRuns: String(summary.failingRuns),
       flakyExposure: String(summary.totalFlaky),

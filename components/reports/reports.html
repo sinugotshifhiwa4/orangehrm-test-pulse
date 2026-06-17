@@ -15,18 +15,29 @@
 
     <div class="report-scope" id="report-scope-summary"></div>
 
-    <!-- Overall tab — full dashboard-filtered history -->
+    <!-- Overall tab — full test suite history -->
     <div class="report-panel active" data-report-panel="overall">
-      <div class="reports-grid">
+      <div class="reports-grid reports-grid-single">
         <div class="report-card">
-          <div class="section-title"><span class="section-title-dot"></span>Overall Automation Report</div>
-          <div class="report-copy">Creates a shareable PDF of automation run health, trends, outcomes, and the latest run summary across all runs in the dashboard.</div>
-          <button class="btn btn-primary report-btn" id="report-overall-btn" type="button">Download Overall PDF</button>
-        </div>
-        <div class="report-card">
-          <div class="section-title"><span class="section-title-dot"></span>Last Run Approval Report</div>
-          <div class="report-copy">Creates a focused approval pack for the latest run with status, pass rate, failures, flaky signals, and release recommendation.</div>
-          <button class="btn btn-primary report-btn" id="report-last-run-btn" type="button">Download Last Run PDF</button>
+          <div class="section-title"><span class="section-title-dot"></span>Overall Test Suite Report</div>
+          <div class="report-copy">A branded PDF covering the complete run history — suite health, readiness, quality, outcomes, and execution trends. All metrics are computed across every run, with no date-range filtering.</div>
+
+          <div class="build-form">
+            <div class="report-control">
+              <label class="report-control-label" for="overall-report-date">Report date</label>
+              <input type="date" id="overall-report-date" class="report-input" />
+            </div>
+            <div class="report-control">
+              <label class="report-control-label" for="overall-prepared-by">Prepared by</label>
+              <input type="text" id="overall-prepared-by" class="report-input" placeholder="Automation Team" />
+            </div>
+            <div class="report-control">
+              <label class="report-control-label" for="overall-audience">Audience</label>
+              <input type="text" id="overall-audience" class="report-input" placeholder="Stakeholders" />
+            </div>
+          </div>
+
+          <button class="btn btn-primary report-btn" id="report-overall-suite-btn" type="button">Generate Overall Report</button>
         </div>
       </div>
     </div>
@@ -113,7 +124,7 @@
             </div>
           </div>
 
-          <button class="btn btn-primary report-btn" id="report-build-btn" type="button">Build Now</button>
+          <button class="btn btn-primary report-btn" id="report-build-btn" type="button">Generate Build Report</button>
         </div>
       </div>
     </div>
