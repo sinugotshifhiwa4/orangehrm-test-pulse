@@ -74,23 +74,6 @@ function caption(page, slot, label) {
   text(page, label, slot.x, slot.yTop - 16, { size: 9, font: bold, color: C.muted });
 }
 
-/** A header row + fixed number of token rows. Returns the y just below the table. */
-function drawTable(page, title, yTop, colX, labels, rows) {
-  text(page, title, MX, yTop, { size: 11, font: bold, color: C.navy });
-  const headY = yTop + 18;
-  const headH = 22;
-  const rowH = 22;
-  rectFill(page, MX, headY, FULL_W, headH, C.navy);
-  labels.forEach((h, i) => text(page, h, colX[i] + 10, headY + 7, { size: 8.5, font: bold, color: C.white }));
-  rows.forEach((cells, ri) => {
-    const y = headY + headH + ri * rowH;
-    if (ri % 2 === 0) rectFill(page, MX, y, FULL_W, rowH, C.panel);
-    page.drawRectangle({ x: MX, y: H - y - rowH, width: FULL_W, height: rowH, borderColor: C.border, borderWidth: 0.5 });
-    cells.forEach((cell, ci) => text(page, cell, colX[ci] + 10, y + rowH / 2 - 4, { size: 8.5, font: ci === 0 ? bold : reg, color: ci === 0 ? C.ink : C.muted }));
-  });
-  return headY + headH + rows.length * rowH;
-}
-
 /* ── Shared chart slots (keep in step with components/reports/sprint-report.ts) ── */
 const DOUGHNUT_SLOT = { x: MX, yTop: 336, w: 240, h: 196 };
 const GAUGE_SLOT = { x: MX, yTop: 566, w: 240, h: 160 };
@@ -194,26 +177,14 @@ const TREND_SLOTS = [
   footer(p, 2);
 }
 
-/* ── Page 3 — Sprint Summary & Delivery Overview (new) ── */
+/* ── Page 3 — Sprint Summary & Delivery Overview ──
+   The three delivery tables are drawn at RUNTIME (components/reports/sprint-report.ts)
+   so they can grow to any number of rows and flow onto continuation pages inserted
+   after this page. The template only lays down this page's heading + footer as the
+   anchor the runtime draws the tables onto. */
 {
   const p = doc.addPage([W, H]);
   pageHeader(p, 'Sprint Summary & Delivery Overview', 'Completed deliverables, work in progress and blockers, and sprint goals.');
-
-  // Table 1 — Completed Work (3 cols, 5 rows).
-  const t1cols = [MX, MX + 175, MX + 410];
-  const t1rows = Array.from({ length: 5 }, (_, i) => [`{{t1_item_${i + 1}}}`, `{{t1_out_${i + 1}}}`, `{{t1_ref_${i + 1}}}`]);
-  let y = drawTable(p, 'Completed Work', 112, t1cols, ['Completed Item', 'Outcome / Value Delivered', 'Reference'], t1rows);
-
-  // Table 2 — Work In Progress & Blockers (4 cols, 4 rows).
-  const t2cols = [MX, MX + 130, MX + 220, MX + 315];
-  const t2rows = Array.from({ length: 4 }, (_, i) => [`{{t2_ws_${i + 1}}}`, `{{t2_status_${i + 1}}}`, `{{t2_owner_${i + 1}}}`, `{{t2_next_${i + 1}}}`]);
-  y = drawTable(p, 'Work In Progress & Blockers', y + 22, t2cols, ['Workstream', 'Current Status', 'Owner', 'Next Action / Blocker'], t2rows);
-
-  // Table 3 — Sprint Goals & Achievements (2 cols, 6 rows).
-  const t3cols = [MX, MX + 130];
-  const t3rows = Array.from({ length: 6 }, (_, i) => [`{{t3_area_${i + 1}}}`, `{{t3_detail_${i + 1}}}`]);
-  drawTable(p, 'Sprint Goals & Achievements', y + 22, t3cols, ['Area', 'Details'], t3rows);
-
   footer(p, 3);
 }
 
