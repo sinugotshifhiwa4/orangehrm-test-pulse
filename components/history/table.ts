@@ -27,12 +27,12 @@ export const TableModule = {
     if (sel && sel.value !== String(State.tablePageSize)) sel.value = String(State.tablePageSize);
   },
 
-  render(): void {
-    const avgDur = Utils.avg(State.filteredRuns.filter(r => r.durationMin != null && r.durationMin > 0).map(r => r.durationMin as number));
-    const outlier = avgDur * 1.5;
-    let rows = [...State.filteredRuns];
+  /** Sort the full filtered set and slice out the current page. Shared by the
+      table render and the CSV/Excel export so both honour the page size. */
+  currentPage(): { pageRows: Run[]; total: number; start: number; end: number; pageCount: number } {
+    const rows = [...State.filteredRuns];
     const { col, dir } = State.sort;
-    rows = rows.sort((a, b) => {
+    rows.sort((a, b) => {
       let av: unknown = a[col], bv: unknown = b[col];
       if (col === 'formattedDate') { av = a._dateMs; bv = b._dateMs; }
       if (typeof av === 'string') av = av.toLowerCase();
@@ -46,7 +46,13 @@ export const TableModule = {
     State.tablePage = Math.min(Math.max(1, State.tablePage), pageCount);
     const start = size > 0 ? (State.tablePage - 1) * size : 0;
     const end = size > 0 ? start + size : total;
-    const pageRows = rows.slice(start, end);
+    return { pageRows: rows.slice(start, end), total, start, end, pageCount };
+  },
+
+  render(): void {
+    const avgDur = Utils.avg(State.filteredRuns.filter(r => r.durationMin != null && r.durationMin > 0).map(r => r.durationMin as number));
+    const outlier = avgDur * 1.5;
+    const { pageRows, total, start, end, pageCount } = this.currentPage();
     this.renderPager(total, start, end, pageCount);
 
     const rClass = (r: Run) => (r.passRate ?? 0) >= State.passThreshold ? 'high' : (r.passRate ?? 0) >= 70 ? 'mid' : 'low';
@@ -128,6 +134,7 @@ export const TableModule = {
         this.toggleDetails(Number(btn.dataset.runNumber));
       });
     });
+    const { col, dir } = State.sort;
     document.querySelectorAll<HTMLElement>('#runs-table thead th[data-col]').forEach(th => {
       th.classList.toggle('sorted', th.dataset.col === col);
       const a = (th.textContent || '').replace(/[↑↓↕]/g, '').trim();

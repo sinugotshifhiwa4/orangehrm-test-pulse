@@ -73,8 +73,10 @@ export const App = {
     });
     document.querySelectorAll<HTMLElement>('.export-option').forEach(opt => {
       this.bindClick(opt, () => {
-        if (opt.dataset.format === 'excel') ExportModule.excel(State.filteredRuns).catch(console.error);
-        else ExportModule.csv(State.filteredRuns);
+        // Export exactly the rows shown on the current page (honour the page size).
+        const { pageRows } = TableModule.currentPage();
+        if (opt.dataset.format === 'excel') ExportModule.excel(pageRows).catch(console.error);
+        else ExportModule.csv(pageRows);
         DropdownModule.closeAll({ target: document.body });
       });
     });
